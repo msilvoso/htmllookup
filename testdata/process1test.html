@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>{{ .Title }}</title>
+    <title>#######TITLE***REPLACEMENT#######</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
     <!-- Required Stylesheets -->
@@ -51,14 +51,14 @@
             </b-col>
         </b-row>
     </b-form>
-    <div v-if="rows > itemLimit" class="text-danger mt-3 col-12">Nombre d'enregistrements: {{ print "{{ rows }}" }} - au dessus de
-        {{ print "{{ itemLimit }}" }} résultats, rien n'est affiché pour des raisons de performance
+    <div v-if="rows > itemLimit" class="text-danger mt-3 col-12">Nombre d'enregistrements: {{ rows }} - au dessus de
+        {{ itemLimit }} résultats, rien n'est affiché pour des raisons de performance
     </div>
-    <div v-else class="text-success mt-3 col-12">Nombre d'enregistrements: {{ print "{{ rows }}" }}</div>
+    <div v-else class="text-success mt-3 col-12">Nombre d'enregistrements: {{ rows }}</div>
     <div v-show="rows <= itemLimit ">
         <b-table id="lookupTable" :items="items" :fields="fields" :sort-by.sync="sortBy"
                  :sort-desc.sync="sortDesc" :per-page="perPage" :current-page="currentPage"
-                 {{ .BTableAttributes }}>{{ .BTableTemplates }}
+                 #######BTABLEATTRIBUTES***REPLACEMENT#######>#######BTABLESTEMPLATES***REPLACEMENT#######
         </b-table>
         <div v-show="rows > perPage">
             <div class="mt-1">
@@ -76,15 +76,15 @@
                 rows: 0,
                 pageLimit: 3,
                 perPage: 15,
-                itemLimit: {{ .ItemLimit }},
+                itemLimit: #######ITEMLIMIT***REPLACEMENT#######,
                 currentPage: 1,
                 contentFilterInput: "",
                 normalizedSearchArray: "",
-                sortBy: '{{ .SortBy }}',
+                sortBy: '#######SORTBY***REPLACEMENT#######',
                 sortDesc: false,
-                fields: {{ .FieldsJson }},
+                fields: #######FIELDSJSON***REPLACEMENT#######,
                 items: [],
-                itemTable: {{ .ItemsJson }},
+                itemTable: #######ITEMSJSON***REPLACEMENT#######,
                 filteredItems: []
             }
         },

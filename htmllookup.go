@@ -4,21 +4,25 @@ import (
 	_ "embed"
 	"encoding/csv"
 	"os"
+	"strings"
+	"text/template"
 )
 
 //go:embed template.html
 var htmlTemplate string
 
 type searchableHtmlPage struct {
-	Title string
+	Title            string
 	BTableAttributes string
 	bTableAttributes []string
-	BTableTemplates string
-	bTableTemplates []string
-	ItemLimit string
-	FieldsJson string
-	ItemsJson string
-	content [][]string
+	BTableTemplates  string
+	bTableTemplates  []string
+	ItemLimit        string
+	FieldsJson       string
+	ItemsJson        string
+	SortBy           string
+	content          [][]string
+	html             string
 }
 
 func New() *searchableHtmlPage {
@@ -39,7 +43,7 @@ func NewFromFile(fileName string, delimiter rune) (*searchableHtmlPage, error) {
 }
 
 // LoadData loads data from a csv file
-func (hp *searchableHtmlPage) LoadData(fileName string, delimiter rune) error{
+func (hp *searchableHtmlPage) LoadData(fileName string, delimiter rune) error {
 	fileReader, err := os.Open(fileName)
 	if err != nil {
 		return err
@@ -53,4 +57,17 @@ func (hp *searchableHtmlPage) LoadData(fileName string, delimiter rune) error{
 	return err
 }
 
+func (hp searchableHtmlPage) Process() (err error) {
+	hp.html, err = hp.generateHtml()
+	return err
+}
 
+func (hp searchableHtmlPage) generateHtml() (string, error) {
+	t := template.Must(template.New("html").Parse(htmlTemplate))
+	output := new(strings.Builder)
+	err := t.Execute(output, hp)
+	if err != nil {
+		return "", err
+	}
+	return output.String(), nil
+}
