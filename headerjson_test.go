@@ -8,10 +8,11 @@ func Test_searchableHtmlPage_headerJson(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	is, err := h.headerJson()
+	err = h.headerJson()
 	if err != nil {
 		t.Fatal(err)
 	}
+	is := h.FieldsJson
 	should := `[{"key":"Index","sortable":"true"},{"key":"Year","sortable":"true"},{"key":"Age","sortable":"true"},{"key":"Name","sortable":"true"},{"key":"Movie","sortable":"true"}]`
 	if is != should {
 		t.Errorf("generated JSON is not correct: \nis:\n%s\nshould be:\n%s", is, should)

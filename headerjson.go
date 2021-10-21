@@ -11,10 +11,10 @@ type columnStruct struct {
 }
 
 // headerJson creates the JSON that defines the table header
-func (hp searchableHtmlPage) headerJson() (string, error) {
+func (hp *searchableHtmlPage) headerJson() error {
 	if len(hp.content) == 0 || len(hp.content[0]) == 0 {
 		// empty content ?
-		return "", fmt.Errorf("headerJson: content slice seems empty")
+		return fmt.Errorf("headerJson: content slice seems empty")
 	}
 	// iterate through first csv line -> header (column names)
 	var h []columnStruct
@@ -25,7 +25,8 @@ func (hp searchableHtmlPage) headerJson() (string, error) {
 	}
 	j, err := json.Marshal(h)
 	if err != nil {
-		return "", fmt.Errorf("headerJson : %s", err.Error())
+		return fmt.Errorf("headerJson : %s", err.Error())
 	}
-	return string(j), nil
+	hp.FieldsJson = string(j)
+	return nil
 }
