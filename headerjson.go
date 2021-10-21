@@ -19,6 +19,7 @@ func (hp searchableHtmlPage) headerJson() (string, error) {
 	// iterate through first csv line -> header (column names)
 	var h []columnStruct
 	for _, column := range hp.content[0] {
+		hp.header = append(hp.header, column)
 		c := columnStruct{Key: column, Sortable: "true"}
 		h = append(h, c)
 	}

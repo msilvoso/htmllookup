@@ -22,6 +22,7 @@ type searchableHtmlPage struct {
 	ItemsJson        string
 	SortBy           string
 	content          [][]string
+	header           []string
 	html             string
 }
 
