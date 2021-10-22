@@ -1,7 +1,6 @@
 package htmllookup
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -83,13 +82,11 @@ func Test_searchableHtmlPage_Save(t *testing.T) {
 	h.Hover()
 	h.Bordered()
 	h.Striped()
-	for k := range h.content {
-		if k == 0 {
-			continue
-		}
-		h.content[k][1] = fmt.Sprintf("<b>%s</b>", h.content[k][1])
+	err = h.AddOption("year", OCellIsGreaterOrEqual, 1980, true, "success")
+	if err != nil {
+		t.Fatal(err)
 	}
-	err = h.RenderInRawHtml("year")
+	err = h.AddOption("age", OCellIsGreaterOrEqual, 30, false, "danger")
 	if err != nil {
 		t.Fatal(err)
 	}

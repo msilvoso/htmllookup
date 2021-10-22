@@ -26,7 +26,24 @@ func (hp *searchableHtmlPage) itemsJson() error {
 		line := map[string]string{}
 		var searchColumn string
 		for hk, cName := range hp.header {
+			// value
 			line[cName] = l[hk]
+			// colorOptions
+			for _, option := range hp.coloringOptions {
+				if option.column == hk {
+					value := l[hk]
+					if checks, _ := checkCondition(value, option.condition, option.compareTo); checks {
+						if option.wholeRow {
+							line["_rowVariant"] = option.option
+							continue
+						}
+						// TODO: Repair this
+						// from PHP: $resultingOptions['_cellVariants'][$this->getColumnName($rowOption['column'])] = $rowOption['option'];
+						line["_cellVariants"] = option.option
+					}
+				}
+			}
+			// add to search
 			searchColumn += l[hk]
 		}
 		line["normalized_search_column"], _ = normalize(searchColumn)

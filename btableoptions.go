@@ -56,3 +56,13 @@ func (hp *searchableHtmlPage) columnName(col int) (string, error) {
 	}
 	return hp.header[col], nil
 }
+
+// columnName returns the column name
+func (hp *searchableHtmlPage) columnIndex(col string) (int, error) {
+	for k, c := range hp.header {
+		if col == c {
+			return k, nil
+		}
+	}
+	return -1, fmt.Errorf("column not found")
+}

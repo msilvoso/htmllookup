@@ -11,6 +11,14 @@ import (
 //go:embed template.html
 var htmlTemplate string
 
+type coloringOption struct {
+	column    int
+	condition int
+	compareTo interface{}
+	wholeRow  bool
+	option    string
+}
+
 type searchableHtmlPage struct {
 	Title            string
 	BTableAttributes string
@@ -25,6 +33,7 @@ type searchableHtmlPage struct {
 	content          [][]string
 	header           []string
 	html             string
+	coloringOptions  []coloringOption
 }
 
 func New() *searchableHtmlPage {
