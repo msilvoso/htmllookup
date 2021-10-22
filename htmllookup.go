@@ -33,10 +33,14 @@ func New() *searchableHtmlPage {
 	return &s
 }
 
-func NewFromData(content [][]string) *searchableHtmlPage {
+func NewFromData(content [][]string) (*searchableHtmlPage, error) {
 	s := New()
 	s.content = content
-	return s
+	err := s.headerJson()
+	if err != nil {
+		return nil, err
+	}
+	return s, nil
 }
 
 func NewFromFile(fileName string, delimiter rune) (*searchableHtmlPage, error) {
@@ -60,14 +64,14 @@ func (hp *searchableHtmlPage) LoadData(fileName string, delimiter rune) error {
 	c.LazyQuotes = true
 	c.TrimLeadingSpace = true
 	hp.content, err = c.ReadAll()
+	if err != nil {
+		return err
+	}
+	err = hp.headerJson()
 	return err
 }
 
 func (hp *searchableHtmlPage) Process() (err error) {
-	err = hp.headerJson()
-	if err != nil {
-		return
-	}
 	err = hp.itemsJson()
 	if err != nil {
 		return
@@ -83,7 +87,7 @@ func (hp *searchableHtmlPage) Html() string {
 }
 
 func (hp *searchableHtmlPage) Save(fileName string) error {
-	f, err := os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
 	}

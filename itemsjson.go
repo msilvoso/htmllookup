@@ -1,6 +1,7 @@
 package htmllookup
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"golang.org/x/text/cases"
@@ -8,6 +9,7 @@ import (
 	"golang.org/x/text/runes"
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"
+	"strings"
 	"unicode"
 )
 
@@ -30,17 +32,22 @@ func (hp *searchableHtmlPage) itemsJson() error {
 		line["normalized_search_column"], _ = normalize(searchColumn)
 		jsonMap = append(jsonMap, line)
 	}
-	j, err := json.Marshal(jsonMap)
+	//j,  := json.Marshal(jsonMap)
+	jBuf := bytes.NewBuffer([]byte{})
+	enc := json.NewEncoder(jBuf)
+	enc.SetEscapeHTML(false)
+	err := enc.Encode(jsonMap)
+	j := strings.Trim(jBuf.String(), "\n\r ")
 	if err != nil {
 		return fmt.Errorf("itemsJson: %s", err.Error())
 	}
-	hp.ItemsJson = string(j)
+	hp.ItemsJson = j
 	return nil
 }
 
-//
+// normalize removes spaces, transliterates special characters, converts to lowercase
 func normalize(input string) (string, error) {
-	t := transform.Chain(runes.Remove(runes.In(unicode.White_Space)), norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC, cases.Lower(language.Und))
+	t := transform.Chain(cases.Lower(language.Und), runes.Remove(runes.In(unicode.White_Space)), norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
 	normalized, _, err := transform.String(t, input)
 	if err != nil {
 		return input, err

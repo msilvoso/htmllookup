@@ -1,6 +1,7 @@
 package htmllookup
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -34,6 +35,7 @@ func Test_searchableHtmlPage_GenerateHtml1(t *testing.T) {
 	h.ItemsJson = "#######ITEMSJSON***REPLACEMENT#######"
 	h.SortBy = "#######SORTBY***REPLACEMENT#######"
 	h.Title = "#######TITLE***REPLACEMENT#######"
+	h.ItemsPerPage = "#######PERPAGE***REPLACEMENT#######"
 	is, err := h.generateHtml()
 	if err != nil {
 		t.Fatal(err)
@@ -53,7 +55,7 @@ func Test_searchableHtmlPage_GenerateHtml1(t *testing.T) {
 	}
 }
 
-func Test_searchableHtmlPage_Save(t *testing.T) {
+func Test_searchableHtmlPage_Html(t *testing.T) {
 	h, err := NewFromFile("testdata/oscar_age_female.csv", ',')
 	if err != nil {
 		t.Fatal(err)
@@ -63,9 +65,6 @@ func Test_searchableHtmlPage_Save(t *testing.T) {
 		t.Fatal(err)
 	}
 	is := h.Html()
-	if err != nil {
-		t.Fatal(err)
-	}
 	should, err := ioutil.ReadFile("testdata/refrender.html")
 	if err != nil {
 		t.Fatal(err)
@@ -73,5 +72,33 @@ func Test_searchableHtmlPage_Save(t *testing.T) {
 	s := string(should)
 	if s != is {
 		t.Errorf("rendered file different from reference file: \n%s\n", diff(is, s))
+	}
+}
+
+func Test_searchableHtmlPage_Save(t *testing.T) {
+	h, err := NewFromFile("testdata/oscar_age_female.csv", ',')
+	if err != nil {
+		t.Fatal(err)
+	}
+	h.Hover()
+	h.Bordered()
+	h.Striped()
+	for k := range h.content {
+		if k == 0 {
+			continue
+		}
+		h.content[k][1] = fmt.Sprintf("<b>%s</b>", h.content[k][1])
+	}
+	err = h.RenderInRawHtml("year")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = h.Process()
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = h.Save("/mnt/test.html")
+	if err != nil {
+		t.Fatal(err)
 	}
 }
