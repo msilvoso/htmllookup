@@ -52,3 +52,26 @@ func Test_searchableHtmlPage_GenerateHtml1(t *testing.T) {
 		t.Errorf("There is a problem : \n%s\n", difference)
 	}
 }
+
+func Test_searchableHtmlPage_Save(t *testing.T) {
+	h, err := NewFromFile("testdata/oscar_age_female.csv", ',')
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = h.Process()
+	if err != nil {
+		t.Fatal(err)
+	}
+	is := h.Html()
+	if err != nil {
+		t.Fatal(err)
+	}
+	should, err := ioutil.ReadFile("testdata/refrender.html")
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := string(should)
+	if s != is {
+		t.Errorf("rendered file different from reference file: \n%s\n", diff(is, s))
+	}
+}

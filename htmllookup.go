@@ -18,6 +18,7 @@ type searchableHtmlPage struct {
 	BTableTemplates  string
 	bTableTemplates  []string
 	ItemLimit        string
+	ItemsPerPage     string
 	FieldsJson       string
 	ItemsJson        string
 	SortBy           string
@@ -27,15 +28,19 @@ type searchableHtmlPage struct {
 }
 
 func New() *searchableHtmlPage {
-	return new(searchableHtmlPage)
+	// defaults
+	s := searchableHtmlPage{Title: "Table Lookup", ItemLimit: "301", ItemsPerPage: "20"}
+	return &s
 }
 
 func NewFromData(content [][]string) *searchableHtmlPage {
-	return &searchableHtmlPage{content: content}
+	s := New()
+	s.content = content
+	return s
 }
 
 func NewFromFile(fileName string, delimiter rune) (*searchableHtmlPage, error) {
-	s := new(searchableHtmlPage)
+	s := New()
 	err := s.LoadData(fileName, delimiter)
 	if err != nil {
 		return nil, err
@@ -58,12 +63,36 @@ func (hp *searchableHtmlPage) LoadData(fileName string, delimiter rune) error {
 	return err
 }
 
-func (hp searchableHtmlPage) Process() (err error) {
+func (hp *searchableHtmlPage) Process() (err error) {
+	err = hp.headerJson()
+	if err != nil {
+		return
+	}
+	err = hp.itemsJson()
+	if err != nil {
+		return
+	}
+	hp.BTableAttributes = strings.Join(hp.bTableAttributes, " ")
+	hp.BTableTemplates = strings.Join(hp.bTableTemplates, "")
 	hp.html, err = hp.generateHtml()
+	return
+}
+
+func (hp *searchableHtmlPage) Html() string {
+	return hp.html
+}
+
+func (hp *searchableHtmlPage) Save(fileName string) error {
+	f, err := os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	_, err = f.WriteString(hp.Html())
 	return err
 }
 
-func (hp searchableHtmlPage) generateHtml() (string, error) {
+func (hp *searchableHtmlPage) generateHtml() (string, error) {
 	t := template.Must(template.New("html").Parse(htmlTemplate))
 	output := new(strings.Builder)
 	err := t.Execute(output, hp)

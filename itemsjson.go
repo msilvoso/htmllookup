@@ -3,6 +3,8 @@ package htmllookup
 import (
 	"encoding/json"
 	"fmt"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"golang.org/x/text/runes"
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"
@@ -38,7 +40,7 @@ func (hp *searchableHtmlPage) itemsJson() error {
 
 //
 func normalize(input string) (string, error) {
-	t := transform.Chain(runes.Remove(runes.In(unicode.White_Space)), norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
+	t := transform.Chain(runes.Remove(runes.In(unicode.White_Space)), norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC, cases.Lower(language.Und))
 	normalized, _, err := transform.String(t, input)
 	if err != nil {
 		return input, err
