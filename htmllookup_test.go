@@ -106,12 +106,21 @@ func Test_searchableHtmlPage_Save(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	err = h.SearchableColumns("year", "name", 4)
+	if err != nil {
+		t.Fatal(err)
+	}
 	err = h.Process()
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = h.Save("/mnt/test.html")
+	is := h.Html()
+	should, err := ioutil.ReadFile("testdata/refrender2.html")
 	if err != nil {
 		t.Fatal(err)
+	}
+	s := string(should)
+	if s != is {
+		t.Errorf("rendered file different from reference file: \n%s\n", diff(is, s))
 	}
 }

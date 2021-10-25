@@ -37,7 +37,21 @@ func (hp *searchableHtmlPage) itemsJson() error {
 				line["_cellVariants"] = cellVariants
 			}
 			// add to search
-			searchColumn += l[hk]
+			switch len(hp.searchableColumns) {
+			case 0: // if no searchableColumns have been specified all columns should be searchable
+				searchColumn += l[hk]
+			default:
+				var searchable bool
+				for _, searchableColumn := range hp.searchableColumns {
+					if searchableColumn == hk {
+						searchable = true
+						break
+					}
+				}
+				if searchable {
+					searchColumn += l[hk]
+				}
+			}
 		}
 		line["normalized_search_column"], _ = normalize(searchColumn)
 		jsonMap = append(jsonMap, line)
@@ -55,6 +69,7 @@ func (hp *searchableHtmlPage) itemsJson() error {
 	return nil
 }
 
+// colorRowOrCell creates the map that is necessary to set row or cell styles
 func (hp *searchableHtmlPage) colorRowOrCell(hk int, l []string, cName string) (rowVariant string, cellVariants map[string]string) {
 	// there can only be one rowVariant but multiple cellVariants
 	for _, option := range hp.coloringOptions {
@@ -73,6 +88,29 @@ func (hp *searchableHtmlPage) colorRowOrCell(hk int, l []string, cName string) (
 		}
 	}
 	return rowVariant, cellVariants
+}
+
+// SearchableColumns defines the columns that should be part of the search index
+// the arguments are int or string (column index (starting at 0) or name)
+func (hp *searchableHtmlPage) SearchableColumns(columns ...interface{}) error {
+	for _, column := range columns {
+		switch c := column.(type) {
+		case int:
+			if c >= len(hp.header) || c < 0 {
+				return fmt.Errorf("column index out of bounds\n")
+			}
+			hp.searchableColumns = append(hp.searchableColumns, c)
+		case string:
+			cIndex, err := hp.columnIndex(c)
+			if err != nil {
+				return fmt.Errorf("column does not exist\n")
+			}
+			hp.searchableColumns = append(hp.searchableColumns, cIndex)
+		default:
+			return fmt.Errorf("column is of the wrong type\n")
+		}
+	}
+	return nil
 }
 
 // normalize removes spaces, transliterates special characters, converts to lowercase

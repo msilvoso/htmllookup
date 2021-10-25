@@ -20,21 +20,22 @@ type coloringOption struct {
 }
 
 type searchableHtmlPage struct {
-	Title            string
-	BTableAttributes string
-	bTableAttributes []string
-	BTableTemplates  string
-	bTableTemplates  []string
-	ItemLimit        string
-	ItemsPerPage     string
-	FieldsJson       string
-	ItemsJson        string
-	SortBy           string
-	content          [][]string
-	header           []string
-	html             string
-	coloringOptions  []coloringOption
-	hiddenColumns    []int
+	Title             string
+	BTableAttributes  string
+	bTableAttributes  []string
+	BTableTemplates   string
+	bTableTemplates   []string
+	ItemLimit         string
+	ItemsPerPage      string
+	FieldsJson        string
+	ItemsJson         string
+	SortBy            string
+	content           [][]string
+	header            []string
+	html              string
+	coloringOptions   []coloringOption
+	hiddenColumns     []int
+	searchableColumns []int
 }
 
 func New() *searchableHtmlPage {
