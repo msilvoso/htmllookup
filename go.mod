@@ -1,4 +1,4 @@
-module github.com/msilvoso/htmllookup.git
+module github.com/msilvoso/htmllookup
 
 go 1.17
 
