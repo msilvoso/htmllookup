@@ -8,6 +8,10 @@ func Test_searchableHtmlPage_headerJson(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	err = h.headerJson()
+	if err != nil {
+		t.Fatal(err)
+	}
 	is := h.FieldsJson
 	should := `[{"key":"index","sortable":"true"},{"key":"year","sortable":"true"},{"key":"age","sortable":"true"},{"key":"name","sortable":"true"},{"key":"name_of_the_movie","sortable":"true"}]`
 	if is != should {
