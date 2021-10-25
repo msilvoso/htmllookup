@@ -112,7 +112,7 @@ func (hp *searchableHtmlPage) AddOption(column interface{}, condition int, compa
 	cOption := coloringOption{condition: condition, wholeRow: wholeRow, option: option}
 	switch col := column.(type) {
 	case int:
-		if col >= len(hp.header) {
+		if col >= len(hp.header) || col < 0 {
 			return fmt.Errorf("column index out of bounds\n")
 		}
 		cOption.column = col

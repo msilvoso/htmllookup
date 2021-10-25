@@ -34,6 +34,7 @@ type searchableHtmlPage struct {
 	header           []string
 	html             string
 	coloringOptions  []coloringOption
+	hiddenColumns    []int
 }
 
 func New() *searchableHtmlPage {
@@ -76,11 +77,15 @@ func (hp *searchableHtmlPage) LoadData(fileName string, delimiter rune) error {
 	if err != nil {
 		return err
 	}
-	err = hp.headerJson()
+	err = hp.extractColumnNames()
 	return err
 }
 
 func (hp *searchableHtmlPage) Process() (err error) {
+	err = hp.headerJson()
+	if err != nil {
+		return
+	}
 	err = hp.itemsJson()
 	if err != nil {
 		return
