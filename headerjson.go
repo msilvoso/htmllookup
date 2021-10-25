@@ -17,7 +17,7 @@ type columnStruct struct {
 }
 
 // headerJson creates the JSON that defines the table header
-func (hp *searchableHtmlPage) headerJson() error {
+func (hp *htmlLookup) headerJson() error {
 	// iterate through first csv line -> header (column names)
 	var h []columnStruct
 	columnLoop:
@@ -40,7 +40,7 @@ func (hp *searchableHtmlPage) headerJson() error {
 }
 
 // extractColumnNames extracts the column names and populates the header slice
-func (hp *searchableHtmlPage) extractColumnNames() error {
+func (hp *htmlLookup) extractColumnNames() error {
 	if len(hp.content) == 0 || len(hp.content[0]) == 0 {
 		// empty content ?
 		return fmt.Errorf("header: content slice seems empty")
@@ -72,7 +72,7 @@ func normalizeHeader(input string) (string, error) {
 // HideColumns defines the columns that should not be shown
 // they can still be part of the search
 // the arguments are int or string (column index (starting at 0) or name)
-func (hp *searchableHtmlPage) HideColumns(columns ...interface{}) error {
+func (hp *htmlLookup) HideColumns(columns ...interface{}) error {
 	for _, column := range columns {
 		switch c := column.(type) {
 		case int:

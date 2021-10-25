@@ -3,28 +3,28 @@ package htmllookup
 import "fmt"
 
 // Hover adds the "hover" attribute to the btable
-func (hp *searchableHtmlPage) Hover() {
+func (hp *htmlLookup) Hover() {
 	hp.AddBTableAttribute("hover")
 }
 
 // Bordered adds the "bordered" attribute to the btable
-func (hp *searchableHtmlPage) Bordered() {
+func (hp *htmlLookup) Bordered() {
 	hp.AddBTableAttribute("bordered")
 }
 
 // Striped adds the "striped" attribute to the btable
-func (hp *searchableHtmlPage) Striped() {
+func (hp *htmlLookup) Striped() {
 	hp.AddBTableAttribute("striped")
 }
 
 // AddBTableAttribute adds an attribute to the bTable
-func (hp *searchableHtmlPage) AddBTableAttribute(attribute string) {
+func (hp *htmlLookup) AddBTableAttribute(attribute string) {
 	hp.bTableAttributes = append(hp.bTableAttributes, attribute)
 }
 
 // RenderInRawHtml adds template to bTable to render the column values in raw html
 // column can either be an int, string or a []byte
-func (hp *searchableHtmlPage) RenderInRawHtml(column interface{}) (err error){
+func (hp *htmlLookup) RenderInRawHtml(column interface{}) (err error){
 	var cName string
 	switch t := column.(type) {
 	case int:
@@ -45,12 +45,12 @@ func (hp *searchableHtmlPage) RenderInRawHtml(column interface{}) (err error){
 
 // AddBTableTemplate adds template to the bTable
 // I do not know any other application than to render in raw html
-func (hp *searchableHtmlPage) AddBTableTemplate(template string) {
+func (hp *htmlLookup) AddBTableTemplate(template string) {
 	hp.bTableTemplates = append(hp.bTableTemplates, template)
 }
 
 // columnName returns the column name
-func (hp *searchableHtmlPage) columnName(col int) (string, error) {
+func (hp *htmlLookup) columnName(col int) (string, error) {
 	if col > len(hp.header) - 1 {
 		return "", fmt.Errorf("the column with index %d does not exist", col)
 	}
@@ -58,7 +58,7 @@ func (hp *searchableHtmlPage) columnName(col int) (string, error) {
 }
 
 // columnName returns the column name
-func (hp *searchableHtmlPage) columnIndex(col string) (int, error) {
+func (hp *htmlLookup) columnIndex(col string) (int, error) {
 	for k, c := range hp.header {
 		if col == c {
 			return k, nil

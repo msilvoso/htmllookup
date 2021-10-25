@@ -108,7 +108,7 @@ func checkCondition(value string, condition int, compareTo interface{}) (bool, e
 	return false, nil
 }
 
-func (hp *searchableHtmlPage) AddOption(column interface{}, condition int, compareTo interface{}, wholeRow bool, option string) (err error) {
+func (hp *htmlLookup) AddOption(column interface{}, condition int, compareTo interface{}, wholeRow bool, option string) (err error) {
 	cOption := coloringOption{condition: condition, wholeRow: wholeRow, option: option}
 	switch col := column.(type) {
 	case int:

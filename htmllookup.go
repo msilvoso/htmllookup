@@ -19,7 +19,7 @@ type coloringOption struct {
 	option    string
 }
 
-type searchableHtmlPage struct {
+type htmlLookup struct {
 	Title             string
 	BTableAttributes  string
 	bTableAttributes  []string
@@ -38,13 +38,16 @@ type searchableHtmlPage struct {
 	searchableColumns []int
 }
 
-func New() *searchableHtmlPage {
+// New is the simple factory for the htmlLookup struct
+// you will still need to load some data
+func New() *htmlLookup {
 	// defaults
-	s := searchableHtmlPage{Title: "Table Lookup", ItemLimit: "301", ItemsPerPage: "20"}
+	s := htmlLookup{Title: "Table Lookup", ItemLimit: "301", ItemsPerPage: "20"}
 	return &s
 }
 
-func NewFromData(content [][]string) (*searchableHtmlPage, error) {
+// NewFromData instantiates a new htmlLookup struct preloading it with the content of a slice
+func NewFromData(content [][]string) (*htmlLookup, error) {
 	s := New()
 	s.content = content
 	err := s.headerJson()
@@ -54,7 +57,8 @@ func NewFromData(content [][]string) (*searchableHtmlPage, error) {
 	return s, nil
 }
 
-func NewFromFile(fileName string, delimiter rune) (*searchableHtmlPage, error) {
+// NewFromFile instantiates a new htmlLookup struct preloading it with the content of a csv file
+func NewFromFile(fileName string, delimiter rune) (*htmlLookup, error) {
 	s := New()
 	err := s.LoadData(fileName, delimiter)
 	if err != nil {
@@ -64,7 +68,7 @@ func NewFromFile(fileName string, delimiter rune) (*searchableHtmlPage, error) {
 }
 
 // LoadData loads data from a csv file
-func (hp *searchableHtmlPage) LoadData(fileName string, delimiter rune) error {
+func (hp *htmlLookup) LoadData(fileName string, delimiter rune) error {
 	fileReader, err := os.Open(fileName)
 	if err != nil {
 		return err
@@ -82,7 +86,7 @@ func (hp *searchableHtmlPage) LoadData(fileName string, delimiter rune) error {
 	return err
 }
 
-func (hp *searchableHtmlPage) Process() (err error) {
+func (hp *htmlLookup) Process() (err error) {
 	err = hp.headerJson()
 	if err != nil {
 		return
@@ -97,11 +101,11 @@ func (hp *searchableHtmlPage) Process() (err error) {
 	return
 }
 
-func (hp *searchableHtmlPage) Html() string {
+func (hp *htmlLookup) Html() string {
 	return hp.html
 }
 
-func (hp *searchableHtmlPage) Save(fileName string) error {
+func (hp *htmlLookup) Save(fileName string) error {
 	f, err := os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
@@ -111,7 +115,7 @@ func (hp *searchableHtmlPage) Save(fileName string) error {
 	return err
 }
 
-func (hp *searchableHtmlPage) generateHtml() (string, error) {
+func (hp *htmlLookup) generateHtml() (string, error) {
 	t := template.Must(template.New("html").Parse(htmlTemplate))
 	output := new(strings.Builder)
 	err := t.Execute(output, hp)

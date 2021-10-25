@@ -14,7 +14,7 @@ import (
 )
 
 // itemsJson creates the JSON that will be passed to the b-table for the rows
-func (hp *searchableHtmlPage) itemsJson() error {
+func (hp *htmlLookup) itemsJson() error {
 	if len(hp.header) == 0 {
 		return fmt.Errorf("the header has to be set (headerJson) before any data can be parsed")
 	}
@@ -70,7 +70,7 @@ func (hp *searchableHtmlPage) itemsJson() error {
 }
 
 // colorRowOrCell creates the map that is necessary to set row or cell styles
-func (hp *searchableHtmlPage) colorRowOrCell(hk int, l []string, cName string) (rowVariant string, cellVariants map[string]string) {
+func (hp *htmlLookup) colorRowOrCell(hk int, l []string, cName string) (rowVariant string, cellVariants map[string]string) {
 	// there can only be one rowVariant but multiple cellVariants
 	for _, option := range hp.coloringOptions {
 		if option.column == hk {
@@ -92,7 +92,7 @@ func (hp *searchableHtmlPage) colorRowOrCell(hk int, l []string, cName string) (
 
 // SearchableColumns defines the columns that should be part of the search index
 // the arguments are int or string (column index (starting at 0) or name)
-func (hp *searchableHtmlPage) SearchableColumns(columns ...interface{}) error {
+func (hp *htmlLookup) SearchableColumns(columns ...interface{}) error {
 	for _, column := range columns {
 		switch c := column.(type) {
 		case int:
