@@ -90,6 +90,18 @@ func Test_searchableHtmlPage_Save(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	err = h.AddOption("age", OCellIsLowerOrEqual, 23, false, "info")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = h.AddOption("index", OCellIsLower, 10, true, "warning")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = h.AddOption("name", OCellIsGreater, "lll", false, "primary")
+	if err != nil {
+		t.Fatal(err)
+	}
 	err = h.Process()
 	if err != nil {
 		t.Fatal(err)

@@ -3,6 +3,7 @@ package htmllookup
 import (
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 // powers of two
@@ -81,23 +82,23 @@ func checkCondition(value string, condition int, compareTo interface{}) (bool, e
 	case string:
 		switch {
 		case condition&OCellIsEqual != 0:
-			if value == v {
+			if strings.ToLower(value) == strings.ToLower(v) {
 				return true, nil
 			}
 		case condition&OCellIsGreater != 0:
-			if value > v {
+			if strings.ToLower(value) > strings.ToLower(v) {
 				return true, nil
 			}
 		case condition&OCellIsLower != 0:
-			if value < v {
+			if strings.ToLower(value) < strings.ToLower(v) {
 				return true, nil
 			}
 		case condition&OCellIsGreaterOrEqual != 0:
-			if value >= v {
+			if strings.ToLower(value) >= strings.ToLower(v) {
 				return true, nil
 			}
 		case condition&OCellIsLowerOrEqual != 0:
-			if value <= v {
+			if strings.ToLower(value) <= strings.ToLower(v) {
 				return true, nil
 			}
 		}
@@ -134,6 +135,8 @@ func (hp *searchableHtmlPage) AddOption(column interface{}, condition int, compa
 		cOption.compareTo = int64(cp)
 	case float32:
 		cOption.compareTo = float64(cp)
+	default:
+		cOption.compareTo = cp
 	}
 	hp.coloringOptions = append(hp.coloringOptions, cOption)
 	return

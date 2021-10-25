@@ -18,30 +18,23 @@ func (hp *searchableHtmlPage) itemsJson() error {
 	if len(hp.header) == 0 {
 		return fmt.Errorf("the header has to be set (headerJson) before any data can be parsed")
 	}
-	var jsonMap []map[string]string
+	var jsonMap []map[string]interface{}
 	for k, l := range hp.content {
 		if k == 0 {
 			continue //skip the first line
 		}
-		line := map[string]string{}
+		line := map[string]interface{}{}
 		var searchColumn string
 		for hk, cName := range hp.header {
 			// value
 			line[cName] = l[hk]
 			// colorOptions
-			for _, option := range hp.coloringOptions {
-				if option.column == hk {
-					value := l[hk]
-					if checks, _ := checkCondition(value, option.condition, option.compareTo); checks {
-						if option.wholeRow {
-							line["_rowVariant"] = option.option
-							continue
-						}
-						// TODO: Repair this
-						// from PHP: $resultingOptions['_cellVariants'][$this->getColumnName($rowOption['column'])] = $rowOption['option'];
-						line["_cellVariants"] = option.option
-					}
-				}
+			rowVariant, cellVariants := hp.colorRowOrCell(hk, l, cName)
+			if rowVariant != "" {
+				line["_rowVariant"] = rowVariant
+			}
+			if len(cellVariants) > 0 {
+				line["_cellVariants"] = cellVariants
 			}
 			// add to search
 			searchColumn += l[hk]
@@ -54,12 +47,32 @@ func (hp *searchableHtmlPage) itemsJson() error {
 	enc := json.NewEncoder(jBuf)
 	enc.SetEscapeHTML(false)
 	err := enc.Encode(jsonMap)
-	j := strings.Trim(jBuf.String(), "\n\r ")
 	if err != nil {
 		return fmt.Errorf("itemsJson: %s", err.Error())
 	}
+	j := strings.Trim(jBuf.String(), "\n\r ")
 	hp.ItemsJson = j
 	return nil
+}
+
+func (hp *searchableHtmlPage) colorRowOrCell(hk int, l []string, cName string) (rowVariant string, cellVariants map[string]string) {
+	// there can only be one rowVariant but multiple cellVariants
+	for _, option := range hp.coloringOptions {
+		if option.column == hk {
+			value := l[hk]
+			if checks, _ := checkCondition(value, option.condition, option.compareTo); checks {
+				if option.wholeRow {
+					rowVariant = option.option
+					continue
+				}
+				if len(cellVariants) == 0 {
+					cellVariants = map[string]string{}
+				}
+				cellVariants[cName] = option.option
+			}
+		}
+	}
+	return rowVariant, cellVariants
 }
 
 // normalize removes spaces, transliterates special characters, converts to lowercase
