@@ -1,6 +1,7 @@
 package htmllookup
 
 import (
+	"encoding/csv"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -116,6 +117,39 @@ func Test_searchableHtmlPage_Save(t *testing.T) {
 	}
 	is := h.Html()
 	should, err := ioutil.ReadFile("testdata/refrender2.html")
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := string(should)
+	if s != is {
+		t.Errorf("rendered file different from reference file: \n%s\n", diff(is, s))
+	}
+}
+
+func TestNewFromData(t *testing.T) {
+	fileReader, err := os.Open("testdata/oscar_age_female.csv")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer fileReader.Close()
+	c := csv.NewReader(fileReader)
+	c.Comma = ','
+	c.LazyQuotes = true
+	c.TrimLeadingSpace = true
+	content, err := c.ReadAll()
+	if err != nil {
+		t.Fatal(err)
+	}
+	h, err := NewFromData(content)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = h.Process()
+	if err != nil {
+		t.Fatal(err)
+	}
+	is := h.Html()
+	should, err := ioutil.ReadFile("testdata/refrender.html")
 	if err != nil {
 		t.Fatal(err)
 	}

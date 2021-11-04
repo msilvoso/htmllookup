@@ -50,7 +50,7 @@ func New() *htmlLookup {
 func NewFromData(content [][]string) (*htmlLookup, error) {
 	s := New()
 	s.content = content
-	err := s.headerJson()
+	err := s.extractColumnNames()
 	if err != nil {
 		return nil, err
 	}
