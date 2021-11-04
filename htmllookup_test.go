@@ -103,6 +103,10 @@ func Test_searchableHtmlPage_Save(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	err = h.AddOption("year", OCellIsNotEqual, 2000, false, "secondary")
+	if err != nil {
+		t.Fatal(err)
+	}
 	err = h.HideColumns("index")
 	if err != nil {
 		t.Fatal(err)

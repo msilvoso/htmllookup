@@ -29,12 +29,9 @@ func (hp *htmlLookup) itemsJson() error {
 			// value
 			line[cName] = l[hk]
 			// colorOptions
-			rowVariant, cellVariants := hp.colorRowOrCell(hk, l, cName)
+			rowVariant := hp.colorRow(hk, l)
 			if rowVariant != "" {
 				line["_rowVariant"] = rowVariant
-			}
-			if len(cellVariants) > 0 {
-				line["_cellVariants"] = cellVariants
 			}
 			// add to search
 			switch len(hp.searchableColumns) {
@@ -53,6 +50,10 @@ func (hp *htmlLookup) itemsJson() error {
 				}
 			}
 		}
+		cellVariants := hp.colorCells(l)
+		if len(cellVariants) > 0 {
+			line["_cellVariants"] = cellVariants
+		}
 		line["normalized_search_column"], _ = normalize(searchColumn)
 		jsonMap = append(jsonMap, line)
 	}
@@ -69,8 +70,8 @@ func (hp *htmlLookup) itemsJson() error {
 	return nil
 }
 
-// colorRowOrCell creates the map that is necessary to set row or cell styles
-func (hp *htmlLookup) colorRowOrCell(hk int, l []string, cName string) (rowVariant string, cellVariants map[string]string) {
+// colorRow creates the map that is necessary to set row styles
+func (hp *htmlLookup) colorRow(hk int, l []string) (rowVariant string) {
 	// there can only be one rowVariant but multiple cellVariants
 	for _, option := range hp.coloringOptions {
 		if option.column == hk {
@@ -80,14 +81,29 @@ func (hp *htmlLookup) colorRowOrCell(hk int, l []string, cName string) (rowVaria
 					rowVariant = option.option
 					continue
 				}
-				if len(cellVariants) == 0 {
-					cellVariants = map[string]string{}
-				}
-				cellVariants[cName] = option.option
 			}
 		}
 	}
-	return rowVariant, cellVariants
+	return rowVariant
+}
+
+// colorCells creates the map that is necessary to set cell styles
+func (hp *htmlLookup) colorCells(l []string) (cellVariants map[string]string) {
+	// there can only be one rowVariant but multiple cellVariants
+	for key, value := range l {
+		for _, option := range hp.coloringOptions {
+			if option.column == key {
+				if checks, _ := checkCondition(value, option.condition, option.compareTo); checks {
+					if len(cellVariants) == 0 {
+						cellVariants = map[string]string{}
+					}
+					cName, _ := hp.columnName(key)
+					cellVariants[cName] = option.option
+				}
+			}
+		}
+	}
+	return cellVariants
 }
 
 // SearchableColumns defines the columns that should be part of the search index
