@@ -14,6 +14,7 @@ const (
 	OCellIsLower          = 1 << iota
 	OCellIsGreaterOrEqual = 1 << iota
 	OCellIsLowerOrEqual   = 1 << iota
+	OCellIsNotEqual       = 1 << iota
 )
 
 // checkCondition checks the content of the cell against a value
@@ -51,6 +52,10 @@ func checkCondition(value string, condition int, compareTo interface{}) (bool, e
 			if c <= v {
 				return true, nil
 			}
+		case condition&OCellIsNotEqual != 0:
+			if c != v {
+				return true, nil
+			}
 		}
 	case float64:
 		c, err := strconv.ParseFloat(value, 64)
@@ -78,6 +83,10 @@ func checkCondition(value string, condition int, compareTo interface{}) (bool, e
 			if c <= v {
 				return true, nil
 			}
+		case condition&OCellIsNotEqual != 0:
+			if c != v {
+				return true, nil
+			}
 		}
 	case string:
 		switch {
@@ -99,6 +108,10 @@ func checkCondition(value string, condition int, compareTo interface{}) (bool, e
 			}
 		case condition&OCellIsLowerOrEqual != 0:
 			if strings.ToLower(value) <= strings.ToLower(v) {
+				return true, nil
+			}
+		case condition&OCellIsNotEqual != 0:
+			if strings.ToLower(value) != strings.ToLower(v) {
 				return true, nil
 			}
 		}
