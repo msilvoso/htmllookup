@@ -162,3 +162,38 @@ func TestNewFromData(t *testing.T) {
 		t.Errorf("rendered file different from reference file: \n%s\n", diff(is, s))
 	}
 }
+
+func Test_htmlLookup_htmlTemplate(t *testing.T) {
+	h := New()
+	is := h.htmlTemplate()
+	should, err := ioutil.ReadFile("templates/template_en.html")
+	if err != nil {
+		t.Fatal(err)
+	}
+	shouldFr, err := ioutil.ReadFile("templates/template_fr.html")
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := string(should)
+	sFr := string(shouldFr)
+	if s != is {
+		t.Errorf("rendered file different from reference file: \n%s\n", diff(is, s))
+	}
+	h.TemplateLanguage = "eng"
+	is = h.htmlTemplate()
+	if s != is {
+		t.Errorf("rendered file different from reference file: \n%s\n", diff(is, s))
+	}
+	// should default to english
+	h.TemplateLanguage = "test"
+	is = h.htmlTemplate()
+	if s != is {
+		t.Errorf("rendered file different from reference file: \n%s\n", diff(is, s))
+	}
+	// french
+	h.TemplateLanguage = "FRançais"
+	is = h.htmlTemplate()
+	if sFr != is {
+		t.Errorf("rendered file different from reference file: \n%s\n", diff(is, sFr))
+	}
+}

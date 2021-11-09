@@ -1,15 +1,17 @@
 package htmllookup
 
 import (
+	"embed"
 	_ "embed"
 	"encoding/csv"
+	"fmt"
 	"os"
 	"strings"
 	"text/template"
 )
 
-//go:embed template.html
-var htmlTemplate string
+//go:embed templates
+var templateStore embed.FS
 
 type coloringOption struct {
 	column    int
@@ -21,6 +23,7 @@ type coloringOption struct {
 
 type htmlLookup struct {
 	Title             string
+	TemplateLanguage  string
 	BTableAttributes  string
 	bTableAttributes  []string
 	BTableTemplates   string
@@ -42,7 +45,7 @@ type htmlLookup struct {
 // you will still need to load some data
 func New() *htmlLookup {
 	// defaults
-	s := htmlLookup{Title: "Table Lookup", ItemLimit: "301", ItemsPerPage: "20"}
+	s := htmlLookup{Title: "Table Lookup", ItemLimit: "301", ItemsPerPage: "20", TemplateLanguage: "en"}
 	return &s
 }
 
@@ -116,11 +119,19 @@ func (hp *htmlLookup) Save(fileName string) error {
 }
 
 func (hp *htmlLookup) generateHtml() (string, error) {
-	t := template.Must(template.New("html").Parse(htmlTemplate))
+	t := template.Must(template.New("html").Parse(hp.htmlTemplate()))
 	output := new(strings.Builder)
 	err := t.Execute(output, hp)
 	if err != nil {
 		return "", err
 	}
 	return output.String(), nil
+}
+
+func (hp *htmlLookup) htmlTemplate() string {
+	templt, err := templateStore.ReadFile(fmt.Sprintf("templates/template_%s.html", strings.ToLower(hp.TemplateLanguage[0:2])))
+	if err != nil {
+		templt, _ = templateStore.ReadFile("templates/template_en.html")
+	}
+	return string(templt)
 }
