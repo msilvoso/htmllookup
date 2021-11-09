@@ -28,6 +28,7 @@ func Test_searchableHtmlPage_LoadData(t *testing.T) {
 
 func Test_searchableHtmlPage_GenerateHtml1(t *testing.T) {
 	h := New()
+	h.DateNow = "2021-11-09 11:53:49"
 	h.ItemLimit = "#######ITEMLIMIT***REPLACEMENT#######"
 	h.BTableAttributes = "#######BTABLEATTRIBUTES***REPLACEMENT#######"
 	h.BTableTemplates = "#######BTABLESTEMPLATES***REPLACEMENT#######"
@@ -57,6 +58,7 @@ func Test_searchableHtmlPage_GenerateHtml1(t *testing.T) {
 
 func Test_searchableHtmlPage_Html(t *testing.T) {
 	h, err := NewFromFile("testdata/oscar_age_female.csv", ',')
+	h.DateNow = "2021-11-09 11:53:49"
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -80,6 +82,7 @@ func Test_searchableHtmlPage_Save(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	h.DateNow = "2021-11-09 11:53:49"
 	h.Hover()
 	h.Bordered()
 	h.Striped()
@@ -145,6 +148,7 @@ func TestNewFromData(t *testing.T) {
 		t.Fatal(err)
 	}
 	h, err := NewFromData(content)
+	h.DateNow = "2021-11-09 11:53:49"
 	if err != nil {
 		t.Fatal(err)
 	}

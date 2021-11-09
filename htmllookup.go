@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 	"text/template"
+	"time"
 )
 
 //go:embed templates
@@ -39,13 +40,14 @@ type htmlLookup struct {
 	coloringOptions   []coloringOption
 	hiddenColumns     []int
 	searchableColumns []int
+	DateNow           string
 }
 
 // New is the simple factory for the htmlLookup struct
 // you will still need to load some data
 func New() *htmlLookup {
 	// defaults
-	s := htmlLookup{Title: "Table Lookup", ItemLimit: "301", ItemsPerPage: "20", TemplateLanguage: "en"}
+	s := htmlLookup{Title: "Table Lookup", ItemLimit: "301", ItemsPerPage: "20", TemplateLanguage: "en", DateNow: time.Now().Format(`2006-01-02 15:04:05`)}
 	return &s
 }
 
