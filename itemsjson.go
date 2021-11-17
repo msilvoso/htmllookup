@@ -24,32 +24,33 @@ func (hp *htmlLookup) itemsJson() error {
 			continue //skip the first line
 		}
 		line := map[string]interface{}{}
-		var searchColumn string
-		for hk, cName := range hp.header {
+		searchColumns := make([]string, 0, 5)
+		for headerKey, columnName := range hp.header {
 			// value
-			line[cName] = l[hk]
+			line[columnName] = l[headerKey]
 			// colorOptions
-			rowVariant := hp.colorRow(hk, l)
+			rowVariant := hp.colorRow(headerKey, l)
 			if rowVariant != "" {
 				line["_rowVariant"] = rowVariant
 			}
 			// add to search
 			switch len(hp.searchableColumns) {
 			case 0: // if no searchableColumns have been specified all columns should be searchable
-				searchColumn += l[hk]
+				searchColumns = append(searchColumns, l[headerKey])
 			default:
 				var searchable bool
 				for _, searchableColumn := range hp.searchableColumns {
-					if searchableColumn == hk {
+					if searchableColumn == headerKey {
 						searchable = true
 						break
 					}
 				}
 				if searchable {
-					searchColumn += l[hk]
+					searchColumns = append(searchColumns, l[headerKey])
 				}
 			}
 		}
+		searchColumn := strings.Join(searchColumns, " ")
 		cellVariants := hp.colorCells(l)
 		if len(cellVariants) > 0 {
 			line["_cellVariants"] = cellVariants
@@ -131,7 +132,7 @@ func (hp *htmlLookup) SearchableColumns(columns ...interface{}) error {
 
 // normalize removes spaces, transliterates special characters, converts to lowercase
 func normalize(input string) (string, error) {
-	t := transform.Chain(cases.Lower(language.Und), runes.Remove(runes.In(unicode.White_Space)), norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
+	t := transform.Chain(cases.Lower(language.Und), runes.If(runes.In(unicode.White_Space), runes.Map(func(r rune) rune { return ' ' }), nil), norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
 	normalized, _, err := transform.String(t, input)
 	if err != nil {
 		return input, err
