@@ -77,10 +77,20 @@ func (hp *htmlLookup) colorRow(hk int, l []string) (rowVariant string) {
 	for _, option := range hp.coloringOptions {
 		if option.column == hk {
 			value := l[hk]
-			if checks, _ := checkCondition(value, option.condition, option.compareTo); checks {
-				if option.wholeRow {
-					rowVariant = option.option
-					continue
+			switch option.relativeComparison {
+			case true:
+				if checks, _ := checkRelCondition(value, l[option.compareToColumn], option.condition, option.numericComparison); checks {
+					if option.wholeRow {
+						rowVariant = option.option
+						continue
+					}
+				}
+			default:
+				if checks, _ := checkCondition(value, option.condition, option.compareTo); checks {
+					if option.wholeRow {
+						rowVariant = option.option
+						continue
+					}
 				}
 			}
 		}
@@ -94,12 +104,23 @@ func (hp *htmlLookup) colorCells(l []string) (cellVariants map[string]string) {
 	for key, value := range l {
 		for _, option := range hp.coloringOptions {
 			if option.column == key {
-				if checks, _ := checkCondition(value, option.condition, option.compareTo); checks {
-					if len(cellVariants) == 0 {
-						cellVariants = map[string]string{}
+				switch option.relativeComparison {
+				case true:
+					if checks, _ := checkRelCondition(value, l[option.compareToColumn], option.condition, option.numericComparison); checks {
+						if len(cellVariants) == 0 {
+							cellVariants = map[string]string{}
+						}
+						cName, _ := hp.columnName(key)
+						cellVariants[cName] = option.option
 					}
-					cName, _ := hp.columnName(key)
-					cellVariants[cName] = option.option
+				default:
+					if checks, _ := checkCondition(value, option.condition, option.compareTo); checks {
+						if len(cellVariants) == 0 {
+							cellVariants = map[string]string{}
+						}
+						cName, _ := hp.columnName(key)
+						cellVariants[cName] = option.option
+					}
 				}
 			}
 		}

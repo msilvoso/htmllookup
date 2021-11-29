@@ -201,3 +201,47 @@ func Test_htmlLookup_htmlTemplate(t *testing.T) {
 		t.Errorf("rendered file different from reference file: \n%s\n", diff(is, sFr))
 	}
 }
+
+func Test_searchableHtmlPage_AddRelOption(t *testing.T) {
+	h, err := NewFromFile("testdata/oscar_age_female.csv", ',')
+	if err != nil {
+		t.Fatal(err)
+	}
+	h.DateNow = "2021-11-09 11:53:49"
+	h.Hover()
+	h.Bordered()
+	h.Striped()
+	err = h.AddRelOption("age", OCellIsGreater, "index", true, false, "danger")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = h.AddRelOption("name", OCellIsGreaterOrEqual, "name_of_the_movie", true, false, "warning")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = h.AddRelOption("index", OCellIsGreater, "age", true, true, "info")
+	if err != nil {
+		t.Fatal(err)
+	}
+	/*err = h.HideColumns("index")
+	if err != nil {
+		t.Fatal(err)
+	}*/
+	err = h.SearchableColumns("year", "name", 4)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = h.Process()
+	if err != nil {
+		t.Fatal(err)
+	}
+	is := h.Html()
+	should, err := ioutil.ReadFile("testdata/refrender3.html")
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := string(should)
+	if s != is {
+		t.Errorf("rendered file different from reference file: \n%s\n", diff(is, s))
+	}
+}

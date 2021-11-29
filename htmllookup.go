@@ -15,11 +15,14 @@ import (
 var templateStore embed.FS
 
 type coloringOption struct {
-	column    int
-	condition int
-	compareTo interface{}
-	wholeRow  bool
-	option    string
+	column             int         // the column (numeric value) to be compared
+	relativeComparison bool        // compare to a column instead of a direct value
+	numericComparison  bool        // compare two columns numerically (only used when relativeComparison is true)
+	condition          int         // condition code -> see OCell... constants
+	compareTo          interface{} // value to be compared to
+	compareToColumn    int         // column to be compared to
+	wholeRow           bool        // color the whole row (not just the cell)
+	option             string      // coloring class to add -> see bootstrapvue classes
 }
 
 type htmlLookup struct {
