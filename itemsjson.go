@@ -75,18 +75,20 @@ func (hp *htmlLookup) itemsJson() error {
 func (hp *htmlLookup) colorRow(hk int, l []string) (rowVariant string) {
 	// there can only be one rowVariant but multiple cellVariants
 	for _, option := range hp.coloringOptions {
-		if option.column == hk {
-			value := l[hk]
+		if !option.wholeRow {
+			continue
+		}
+		if option.applyOptionTo == hk {
 			switch option.relativeComparison {
 			case true:
-				if checks, _ := checkRelCondition(value, l[option.compareToColumn], option.condition, option.numericComparison); checks {
+				if checks, _ := checkRelCondition(l[option.column], l[option.compareToColumn], option.condition, option.numericComparison); checks {
 					if option.wholeRow {
 						rowVariant = option.option
 						continue
 					}
 				}
 			default:
-				if checks, _ := checkCondition(value, option.condition, option.compareTo); checks {
+				if checks, _ := checkCondition(l[option.column], option.condition, option.compareTo); checks {
 					if option.wholeRow {
 						rowVariant = option.option
 						continue
@@ -101,12 +103,15 @@ func (hp *htmlLookup) colorRow(hk int, l []string) (rowVariant string) {
 // colorCells creates the map that is necessary to set cell styles
 func (hp *htmlLookup) colorCells(l []string) (cellVariants map[string]string) {
 	// there can only be one rowVariant but multiple cellVariants
-	for key, value := range l {
+	for key := range l {
 		for _, option := range hp.coloringOptions {
-			if option.column == key {
+			if option.wholeRow {
+				continue
+			}
+			if option.applyOptionTo == key {
 				switch option.relativeComparison {
 				case true:
-					if checks, _ := checkRelCondition(value, l[option.compareToColumn], option.condition, option.numericComparison); checks {
+					if checks, _ := checkRelCondition(l[option.column], l[option.compareToColumn], option.condition, option.numericComparison); checks {
 						if len(cellVariants) == 0 {
 							cellVariants = map[string]string{}
 						}
@@ -114,7 +119,7 @@ func (hp *htmlLookup) colorCells(l []string) (cellVariants map[string]string) {
 						cellVariants[cName] = option.option
 					}
 				default:
-					if checks, _ := checkCondition(value, option.condition, option.compareTo); checks {
+					if checks, _ := checkCondition(l[option.column], option.condition, option.compareTo); checks {
 						if len(cellVariants) == 0 {
 							cellVariants = map[string]string{}
 						}

@@ -16,6 +16,7 @@ var templateStore embed.FS
 
 type coloringOption struct {
 	column             int         // the column (numeric value) to be compared
+	applyOptionTo      int         // the column the style has to be applied to
 	relativeComparison bool        // compare to a column instead of a direct value
 	numericComparison  bool        // compare two columns numerically (only used when relativeComparison is true)
 	condition          int         // condition code -> see OCell... constants

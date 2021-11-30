@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Table Lookup</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+    <!-- Required Stylesheets -->
+    <link
+            type="text/css"
+            rel="stylesheet"
+            href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css"
+    />
+    <link
+            type="text/css"
+            rel="stylesheet"
+            href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css"
+    />
+
+    <!-- Load polyfills to support older browsers -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es2015%2CIntersectionObserver"></script>
+
+    <!-- Required scripts -->
+    <script src="https://unpkg.com/vue@latest/dist/vue.min.js"></script>
+    <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
+</head>
+<body>
+<div id="app">
+    <b-form inline>
+        <b-row>
+            <b-col cols="8">
+                <b-input-group prepend="Filter" xl="8" class="mt-3">
+                    <b-form-input type="search" autofocus="true" autocomplete="off"
+                                  placeholder="Full-text search" debounce="200"
+                                  v-model="contentFilterInput" @update="refreshTable"></b-form-input>
+                </b-input-group>
+            </b-col>
+            <b-col cols="2">
+                <b-input-group prepend="Limit" xl="2" class="mt-3">
+                    <b-form-input id="itemLimitBox" type="number" autocomplete="off" debounce="200"
+                                  placeholder="Display limit" v-model="itemLimit"
+                                  @update="refreshTable"></b-form-input>
+                </b-input-group>
+            </b-col>
+            <b-col cols="2">
+                <b-input-group prepend="Rec./Page" xl="2" class="mt-3">
+                    <b-form-input id="perPageBox" type="number" autocomplete="off" debounce="200"
+                                  placeholder="Records per page" v-model="perPage"
+                                  @update="refreshTable"></b-form-input>
+                </b-input-group>
+            </b-col>
+        </b-row>
+    </b-form>
+    <div v-if="rows > itemLimit" class="text-danger mt-3 col-12">Record count: {{ rows }} - above
+        {{ itemLimit }} results, nothing is displayed for performance reasons, please narrow your search
+    </div>
+    <div v-else class="text-success mt-3 col-12">Record count: {{ rows }}</div>
+    <div v-show="rows <= itemLimit ">
+        <b-table id="lookupTable" :items="items" :fields="fields" :sort-by.sync="sortBy"
+                 :sort-desc.sync="sortDesc" :per-page="perPage" :current-page="currentPage"
+                 hover bordered striped>
+        </b-table>
+        <div v-show="rows > perPage">
+            <div class="mt-1">
+                <b-pagination v-model="currentPage" pills :total-rows="rows" :per-page="perPage" :limit="pageLimit"
+                              aria-controls="lookupTable" first-number last-number size="lg"></b-pagination>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="font-size: 10px;text-align:right;margin-right:50px;">Generation timestamp: 2021-11-09 11:53:49</div>
+<script>
+    window.app = new Vue({
+        el: '#app',
+        data() {
+            return {
+                rows: 0,
+                pageLimit: 3,
+                perPage: 20,
+                itemLimit: 301,
+                currentPage: 1,
+                contentFilterInput: "",
+                normalizedSearchArray: "",
+                sortBy: '',
+                sortDesc: false,
+                fields: [{"key":"index","sortable":"true"},{"key":"year","sortable":"true"},{"key":"age","sortable":"true"},{"key":"name","sortable":"true"},{"key":"name_of_the_movie","sortable":"true"}],
+                items: [],
+                itemTable: [{"_cellVariants":{"name_of_the_movie":"danger"},"age":"22","index":"1","name":"Janet Gaynor","name_of_the_movie":"Seventh Heaven, Street Angel and Sunrise: A Song of Two Humans","normalized_search_column":"1928 janet gaynor seventh heaven, street angel and sunrise: a song of two humans","year":"1928"},{"_cellVariants":{"name":"warning","name_of_the_movie":"danger"},"age":"37","index":"2","name":"Mary Pickford","name_of_the_movie":"Coquette","normalized_search_column":"1929 mary pickford coquette","year":"1929"},{"_cellVariants":{"name_of_the_movie":"danger"},"age":"28","index":"3","name":"Norma Shearer","name_of_the_movie":"The Divorcee","normalized_search_column":"1930 norma shearer the divorcee","year":"1930"},{"_cellVariants":{"name_of_the_movie":"danger"},"age":"63","index":"4","name":"Marie Dressler","name_of_the_movie":"Min and Bill","normalized_search_column":"1931 marie dressler min and bill","year":"1931"},{"_cellVariants":{"name_of_the_movie":"danger"},"age":"32","index":"5","name":"Helen Hayes","name_of_the_movie":"The Sin of Madelon Claudet","normalized_search_column":"1932 helen hayes the sin of madelon claudet","year":"1932"},{"_cellVariants":{"name_of_the_movie":"danger"},"age":"26","index":"6","name":"Katharine Hepburn","name_of_the_movie":"Morning Glory","normalized_search_column":"1933 katharine hepburn morning glory","year":"1933"},{"_cellVariants":{"name_of_the_movie":"danger"},"age":"31","index":"7","name":"Claudette Colbert","name_of_the_movie":"It Happened One Night","normalized_search_column":"1934 claudette colbert it happened one night","year":"1934"},{"_cellVariants":{"name_of_the_movie":"danger"},"age":"27","index":"8","name":"Bette Davis","name_of_the_movie":"Dangerous","normalized_search_column":"1935 bette davis dangerous","year":"1935"},{"_cellVariants":{"name_of_the_movie":"danger"},"age":"27","index":"9","name":"Luise Rainer","name_of_the_movie":"The Great Ziegfeld","normalized_search_column":"1936 luise rainer the great ziegfeld","year":"1936"},{"_cellVariants":{"name_of_the_movie":"danger"},"age":"28","index":"10","name":"Luise Rainer","name_of_the_movie":"The Good Earth","normalized_search_column":"1937 luise rainer the good earth","year":"1937"},{"_cellVariants":{"name_of_the_movie":"danger"},"age":"30","index":"11","name":"Bette Davis","name_of_the_movie":"Jezebel","normalized_search_column":"1938 bette davis jezebel","year":"1938"},{"_cellVariants":{"name":"warning","name_of_the_movie":"danger"},"age":"26","index":"12","name":"Vivien Leigh","name_of_the_movie":"Gone with the Wind","normalized_search_column":"1939 vivien leigh gone with the wind","year":"1939"},{"_cellVariants":{"name_of_the_movie":"danger"},"age":"29","index":"13","name":"Ginger Rogers","name_of_the_movie":"Kitty Foyle","normalized_search_column":"1940 ginger rogers kitty foyle","year":"1940"},{"_cellVariants":{"name_of_the_movie":"danger"},"age":"24","index":"14","name":"Joan Fontaine","name_of_the_movie":"Suspicion","normalized_search_column":"1941 joan fontaine suspicion","year":"1941"},{"_cellVariants":{"name_of_the_movie":"danger"},"age":"38","index":"15","name":"Greer Garson","name_of_the_movie":"Mrs. Miniver","normalized_search_column":"1942 greer garson mrs. miniver","year":"1942"},{"_cellVariants":{"name_of_the_movie":"danger"},"age":"25","index":"16","name":"Jennifer Jones","name_of_the_movie":"The Song of Bernadette","normalized_search_column":"1943 jennifer jones the song of bernadette","year":"1943"},{"_cellVariants":{"name":"warning","name_of_the_movie":"danger"},"age":"29","index":"17","name":"Ingrid Bergman","name_of_the_movie":"Gaslight","normalized_search_column":"1944 ingrid bergman gaslight","year":"1944"},{"_cellVariants":{"name_of_the_movie":"danger"},"age":"40","index":"18","name":"Joan Crawford","name_of_the_movie":"Mildred Pierce","normalized_search_column":"1945 joan crawford mildred pierce","year":"1945"},{"_cellVariants":{"name_of_the_movie":"danger"},"age":"30","index":"19","name":"Olivia de Havilland","name_of_the_movie":"To Each His Own","normalized_search_column":"1946 olivia de havilland to each his own","year":"1946"},{"_cellVariants":{"name_of_the_movie":"danger"},"age":"35","index":"20","name":"Loretta Young","name_of_the_movie":"The Farmer's Daughter","normalized_search_column":"1947 loretta young the farmer's daughter","year":"1947"},{"_cellVariants":{"name_of_the_movie":"danger"},"age":"32","index":"21","name":"Jane Wyman","name_of_the_movie":"Johnny Belinda","normalized_search_column":"1948 jane wyman johnny belinda","year":"1948"},{"_cellVariants":{"name_of_the_movie":"danger"},"age":"33","index":"22","name":"Olivia de Havilland","name_of_the_movie":"The Heiress","normalized_search_column":"1949 olivia de havilland the heiress","year":"1949"},{"_cellVariants":{"name":"warning","name_of_the_movie":"danger"},"age":"29","index":"23","name":"Judy Holliday","name_of_the_movie":"Born Yesterday","normalized_search_column":"1950 judy holliday born yesterday","year":"1950"},{"_cellVariants":{"name":"warning","name_of_the_movie":"danger"},"age":"38","index":"24","name":"Vivien Leigh","name_of_the_movie":"A Streetcar Named Desire","normalized_search_column":"1951 vivien leigh a streetcar named desire","year":"1951"},{"_cellVariants":{"name":"warning","name_of_the_movie":"danger"},"age":"54","index":"25","name":"Shirley Booth","name_of_the_movie":"Come Back, Little Sheba","normalized_search_column":"1952 shirley booth come back, little sheba","year":"1952"},{"_cellVariants":{"year":"info"},"age":"24","index":"26","name":"Audrey Hepburn","name_of_the_movie":"Roman Holiday","normalized_search_column":"1953 audrey hepburn roman holiday","year":"1953"},{"_cellVariants":{"year":"info"},"age":"25","index":"27","name":"Grace Kelly","name_of_the_movie":"The Country Girl","normalized_search_column":"1954 grace kelly the country girl","year":"1954"},{"_cellVariants":{"name_of_the_movie":"danger"},"age":"48","index":"28","name":"Anna Magnani","name_of_the_movie":"The Rose Tattoo","normalized_search_column":"1955 anna magnani the rose tattoo","year":"1955"},{"_cellVariants":{"name":"warning","name_of_the_movie":"danger"},"age":"41","index":"29","name":"Ingrid Bergman","name_of_the_movie":"Anastasia","normalized_search_column":"1956 ingrid bergman anastasia","year":"1956"},{"_cellVariants":{"year":"info"},"age":"28","index":"30","name":"Joanne Woodward","name_of_the_movie":"The Three Faces of Eve","normalized_search_column":"1957 joanne woodward the three faces of eve","year":"1957"},{"_cellVariants":{"name":"warning","name_of_the_movie":"danger"},"age":"41","index":"31","name":"Susan Hayward","name_of_the_movie":"I Want to Live!","normalized_search_column":"1958 susan hayward i want to live!","year":"1958"},{"_cellVariants":{"name":"warning","name_of_the_movie":"danger"},"age":"39","index":"32","name":"Simone Signoret","name_of_the_movie":"Room at the Top","normalized_search_column":"1959 simone signoret room at the top","year":"1959"},{"_cellVariants":{"name":"warning","year":"info"},"age":"29","index":"33","name":"Elizabeth Taylor","name_of_the_movie":"BUtterfield 8","normalized_search_column":"1960 elizabeth taylor butterfield 8","year":"1960"},{"_cellVariants":{"year":"info"},"age":"27","index":"34","name":"Sophia Loren","name_of_the_movie":"Two Women","normalized_search_column":"1961 sophia loren two women","year":"1961"},{"_cellVariants":{"year":"info"},"age":"31","index":"35","name":"Anne Bancroft","name_of_the_movie":"The Miracle Worker","normalized_search_column":"1962 anne bancroft the miracle worker","year":"1962"},{"_cellVariants":{"name":"warning","year":"info"},"age":"31","index":"36","name":"Patricia Neal","name_of_the_movie":"Hud","normalized_search_column":"1963 patricia neal hud","year":"1963"},{"_cellVariants":{"year":"info"},"age":"29","index":"37","name":"Julie Andrews","name_of_the_movie":"Mary Poppins","normalized_search_column":"1964 julie andrews mary poppins","year":"1964"},{"_cellVariants":{"name":"warning","year":"info"},"age":"25","index":"38","name":"Julie Christie","name_of_the_movie":"Darling","normalized_search_column":"1965 julie christie darling","year":"1965"},{"_cellVariants":{"year":"info"},"age":"35","index":"39","name":"Elizabeth Taylor","name_of_the_movie":"Who's Afraid of Virginia Woolf?","normalized_search_column":"1966 elizabeth taylor who's afraid of virginia woolf?","year":"1966"},{"_cellVariants":{"name":"warning","name_of_the_movie":"danger"},"age":"60","index":"40","name":"Katharine Hepburn","name_of_the_movie":"Guess Who's Coming to Dinner","normalized_search_column":"1967 katharine hepburn guess who's coming to dinner","year":"1967"},{"_cellVariants":{"name_of_the_movie":"danger"},"age":"61","index":"41","name":"Katharine Hepburn","name_of_the_movie":"The Lion in Winter","normalized_search_column":"1968 katharine hepburn the lion in winter","year":"1968"},{"_cellVariants":{"year":"info"},"age":"26","index":"42","name":"Barbra Streisand","name_of_the_movie":"Funny Girl","normalized_search_column":"1969 barbra streisand funny girl","year":"1969"},{"_cellVariants":{"year":"info"},"age":"35","index":"43","name":"Maggie Smith","name_of_the_movie":"The Prime of Miss Jean Brodie","normalized_search_column":"1970 maggie smith the prime of miss jean brodie","year":"1970"},{"_cellVariants":{"year":"info"},"age":"34","index":"44","name":"Glenda Jackson","name_of_the_movie":"Women in Love","normalized_search_column":"1971 glenda jackson women in love","year":"1971"},{"_cellVariants":{"year":"info"},"age":"34","index":"45","name":"Jane Fonda","name_of_the_movie":"Klute","normalized_search_column":"1972 jane fonda klute","year":"1972"},{"_cellVariants":{"name":"warning","year":"info"},"age":"27","index":"46","name":"Liza Minnelli","name_of_the_movie":"Cabaret","normalized_search_column":"1973 liza minnelli cabaret","year":"1973"},{"_cellVariants":{"name":"warning","year":"info"},"age":"37","index":"47","name":"Glenda Jackson","name_of_the_movie":"A Touch of Class","normalized_search_column":"1974 glenda jackson a touch of class","year":"1974"},{"_cellVariants":{"name":"warning","year":"info"},"age":"42","index":"48","name":"Ellen Burstyn","name_of_the_movie":"Alice Doesn't Live Here Anymore","normalized_search_column":"1975 ellen burstyn alice doesn't live here anymore","year":"1975"},{"_cellVariants":{"year":"info"},"age":"41","index":"49","name":"Louise Fletcher","name_of_the_movie":"One Flew Over the Cuckoo's Nest","normalized_search_column":"1976 louise fletcher one flew over the cuckoo's nest","year":"1976"},{"_cellVariants":{"year":"info"},"age":"36","index":"50","name":"Faye Dunaway","name_of_the_movie":"Network","normalized_search_column":"1977 faye dunaway network","year":"1977"},{"_cellVariants":{"name":"warning","year":"info"},"age":"32","index":"51","name":"Diane Keaton","name_of_the_movie":"Annie Hall","normalized_search_column":"1978 diane keaton annie hall","year":"1978"},{"_cellVariants":{"name":"warning","year":"info"},"age":"41","index":"52","name":"Jane Fonda","name_of_the_movie":"Coming Home","normalized_search_column":"1979 jane fonda coming home","year":"1979"},{"_cellVariants":{"name":"warning","year":"info"},"age":"33","index":"53","name":"Sally Field","name_of_the_movie":"Norma Rae","normalized_search_column":"1980 sally field norma rae","year":"1980"},{"_cellVariants":{"name":"warning","year":"info"},"age":"31","index":"54","name":"Sissy Spacek","name_of_the_movie":"Coal Miner's Daughter","normalized_search_column":"1981 sissy spacek coal miner's daughter","year":"1981"},{"_cellVariants":{"name_of_the_movie":"danger"},"age":"74","index":"55","name":"Katharine Hepburn","name_of_the_movie":"On Golden Pond","normalized_search_column":"1982 katharine hepburn on golden pond","year":"1982"},{"_cellVariants":{"year":"info"},"age":"33","index":"56","name":"Meryl Streep","name_of_the_movie":"Sophie's Choice","normalized_search_column":"1983 meryl streep sophie's choice","year":"1983"},{"_cellVariants":{"year":"info"},"age":"49","index":"57","name":"Shirley MacLaine","name_of_the_movie":"Terms of Endearment","normalized_search_column":"1984 shirley maclaine terms of endearment","year":"1984"},{"_cellVariants":{"name":"warning","year":"info"},"age":"38","index":"58","name":"Sally Field","name_of_the_movie":"Places in the Heart","normalized_search_column":"1985 sally field places in the heart","year":"1985"},{"_cellVariants":{"name_of_the_movie":"danger"},"age":"61","index":"59","name":"Geraldine Page","name_of_the_movie":"The Trip to Bountiful","normalized_search_column":"1986 geraldine page the trip to bountiful","year":"1986"},{"_cellVariants":{"name":"warning","year":"info"},"age":"21","index":"60","name":"Marlee Matlin","name_of_the_movie":"Children of a Lesser God","normalized_search_column":"1987 marlee matlin children of a lesser god","year":"1987"},{"_cellVariants":{"year":"info"},"age":"41","index":"61","name":"Cher","name_of_the_movie":"Moonstruck","normalized_search_column":"1988 cher moonstruck","year":"1988"},{"_cellVariants":{"year":"info"},"age":"26","index":"62","name":"Jodie Foster","name_of_the_movie":"The Accused","normalized_search_column":"1989 jodie foster the accused","year":"1989"},{"_cellVariants":{"name":"warning","name_of_the_movie":"danger"},"age":"80","index":"63","name":"Jessica Tandy","name_of_the_movie":"Driving Miss Daisy","normalized_search_column":"1990 jessica tandy driving miss daisy","year":"1990"},{"_cellVariants":{"year":"info"},"age":"42","index":"64","name":"Kathy Bates","name_of_the_movie":"Misery","normalized_search_column":"1991 kathy bates misery","year":"1991"},{"_cellVariants":{"year":"info"},"age":"29","index":"65","name":"Jodie Foster","name_of_the_movie":"The Silence of the Lambs","normalized_search_column":"1992 jodie foster the silence of the lambs","year":"1992"},{"_cellVariants":{"year":"info"},"age":"33","index":"66","name":"Emma Thompson","name_of_the_movie":"Howards End","normalized_search_column":"1993 emma thompson howards end","year":"1993"},{"_cellVariants":{"year":"info"},"age":"36","index":"67","name":"Holly Hunter","name_of_the_movie":"The Piano","normalized_search_column":"1994 holly hunter the piano","year":"1994"},{"_cellVariants":{"name":"warning","year":"info"},"age":"45","index":"68","name":"Jessica Lange","name_of_the_movie":"Blue Sky","normalized_search_column":"1995 jessica lange blue sky","year":"1995"},{"_cellVariants":{"name":"warning","year":"info"},"age":"49","index":"69","name":"Susan Sarandon","name_of_the_movie":"Dead Man Walking","normalized_search_column":"1996 susan sarandon dead man walking","year":"1996"},{"_cellVariants":{"name":"warning","year":"info"},"age":"39","index":"70","name":"Frances McDormand","name_of_the_movie":"Fargo","normalized_search_column":"1997 frances mcdormand fargo","year":"1997"},{"_cellVariants":{"name":"warning","year":"info"},"age":"34","index":"71","name":"Helen Hunt","name_of_the_movie":"As Good as It Gets","normalized_search_column":"1998 helen hunt as good as it gets","year":"1998"},{"_cellVariants":{"year":"info"},"age":"26","index":"72","name":"Gwyneth Paltrow","name_of_the_movie":"Shakespeare in Love","normalized_search_column":"1999 gwyneth paltrow shakespeare in love","year":"1999"},{"_cellVariants":{"name":"warning","year":"info"},"age":"25","index":"73","name":"Hilary Swank","name_of_the_movie":"Boys Don't Cry","normalized_search_column":"2000 hilary swank boys don't cry","year":"2000"},{"_cellVariants":{"name":"warning","year":"info"},"age":"33","index":"74","name":"Julia Roberts","name_of_the_movie":"Erin Brockovich","normalized_search_column":"2001 julia roberts erin brockovich","year":"2001"},{"_cellVariants":{"year":"info"},"age":"35","index":"75","name":"Halle Berry","name_of_the_movie":"Monster's Ball","normalized_search_column":"2002 halle berry monster's ball","year":"2002"},{"_cellVariants":{"year":"info"},"age":"35","index":"76","name":"Nicole Kidman","name_of_the_movie":"The Hours","normalized_search_column":"2003 nicole kidman the hours","year":"2003"},{"_cellVariants":{"year":"info"},"age":"28","index":"77","name":"Charlize Theron","name_of_the_movie":"Monster","normalized_search_column":"2004 charlize theron monster","year":"2004"},{"_cellVariants":{"year":"info"},"age":"30","index":"78","name":"Hilary Swank","name_of_the_movie":"Million Dollar Baby","normalized_search_column":"2005 hilary swank million dollar baby","year":"2005"},{"_cellVariants":{"year":"info"},"age":"29","index":"79","name":"Reese Witherspoon","name_of_the_movie":"Walk the Line","normalized_search_column":"2006 reese witherspoon walk the line","year":"2006"},{"_cellVariants":{"year":"info"},"age":"61","index":"80","name":"Helen Mirren","name_of_the_movie":"The Queen","normalized_search_column":"2007 helen mirren the queen","year":"2007"},{"_cellVariants":{"name":"warning","year":"info"},"age":"32","index":"81","name":"Marion Cotillard","name_of_the_movie":"La Vie en rose","normalized_search_column":"2008 marion cotillard la vie en rose","year":"2008"},{"_cellVariants":{"year":"info"},"age":"33","index":"82","name":"Kate Winslet","name_of_the_movie":"The Reader","normalized_search_column":"2009 kate winslet the reader","year":"2009"},{"_cellVariants":{"year":"info"},"age":"45","index":"83","name":"Sandra Bullock","name_of_the_movie":"The Blind Side","normalized_search_column":"2010 sandra bullock the blind side","year":"2010"},{"_cellVariants":{"name":"warning","year":"info"},"age":"29","index":"84","name":"Natalie Portman","name_of_the_movie":"Black Swan","normalized_search_column":"2011 natalie portman black swan","year":"2011"},{"_cellVariants":{"year":"info"},"age":"62","index":"85","name":"Meryl Streep","name_of_the_movie":"The Iron Lady","normalized_search_column":"2012 meryl streep the iron lady","year":"2012"},{"_cellVariants":{"year":"info"},"age":"22","index":"86","name":"Jennifer Lawrence","name_of_the_movie":"Silver Linings Playbook","normalized_search_column":"2013 jennifer lawrence silver linings playbook","year":"2013"},{"_cellVariants":{"name":"warning","year":"info"},"age":"44","index":"87","name":"Cate Blanchett","name_of_the_movie":"Blue Jasmine","normalized_search_column":"2014 cate blanchett blue jasmine","year":"2014"},{"_cellVariants":{"year":"info"},"age":"54","index":"88","name":"Julianne Moore","name_of_the_movie":"Still Alice","normalized_search_column":"2015 julianne moore still alice","year":"2015"},{"_cellVariants":{"year":"info"},"age":"26","index":"89","name":"Brie Larson","name_of_the_movie":"Room","normalized_search_column":"2016 brie larson room","year":"2016"}],
+                filteredItems: []
+            }
+        },
+        mounted() {
+            this.rows = this.itemTable.length;
+            this.refreshTable();
+        },
+        methods: {
+            refreshTable() {
+                if (!this.contentFilterInput) {
+                    this.emptySearchString();
+                } else {
+                    this.nonEmptySearchString();
+                }
+            },
+            emptySearchString() {
+                if (this.itemTable.length > this.itemLimit) {
+                    this.items = [];
+                } else {
+                    this.items = this.itemTable;
+                }
+                this.rows = this.itemTable.length;
+                this.currentPage = 1;
+            },
+            nonEmptySearchString() {
+                // remove accented characters
+                let normalizedSearchTerm = this.contentFilterInput.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                this.normalizedSearchArray = normalizedSearchTerm.split(" ");
+
+                let filteredItems = this.itemTable.filter(this.textMatch);
+                if (filteredItems.length > this.itemLimit) {
+                    this.items = [];
+                } else {
+                    this.items = filteredItems;
+                }
+                this.rows = filteredItems.length;
+            },
+            textMatch(item) {
+                let itemText = item.normalized_search_column + "";
+                let match = true;
+                this.normalizedSearchArray.forEach(searchTerm => match = match && (itemText.indexOf(searchTerm) !== -1));
+                return match;
+            }
+        }
+    });
+</script>
+</body>
+</html>

@@ -25,93 +25,93 @@ func checkCondition(value string, condition int, compareTo interface{}) (bool, e
 	if condition&OCellHasValue != 0 && value == "" {
 		return false, nil
 	}
-	switch v := compareTo.(type) {
+	switch cptTo := compareTo.(type) {
 	case int64:
-		c, err := strconv.ParseInt(value, 10, 64)
+		val, err := strconv.ParseInt(value, 10, 64)
 		if err != nil {
 			break
 		}
 		switch {
 		case condition&OCellIsEqual != 0:
-			if c == v {
+			if val == cptTo {
 				return true, nil
 			}
 		case condition&OCellIsGreater != 0:
-			if c > v {
+			if val > cptTo {
 				return true, nil
 			}
 		case condition&OCellIsLower != 0:
-			if c < v {
+			if val < cptTo {
 				return true, nil
 			}
 		case condition&OCellIsGreaterOrEqual != 0:
-			if c >= v {
+			if val >= cptTo {
 				return true, nil
 			}
 		case condition&OCellIsLowerOrEqual != 0:
-			if c <= v {
+			if val <= cptTo {
 				return true, nil
 			}
 		case condition&OCellIsNotEqual != 0:
-			if c != v {
+			if val != cptTo {
 				return true, nil
 			}
 		}
 	case float64:
-		c, err := strconv.ParseFloat(value, 64)
+		val, err := strconv.ParseFloat(value, 64)
 		if err != nil {
 			break
 		}
 		switch {
 		case condition&OCellIsEqual != 0:
-			if c == v {
+			if val == cptTo {
 				return true, nil
 			}
 		case condition&OCellIsGreater != 0:
-			if c > v {
+			if val > cptTo {
 				return true, nil
 			}
 		case condition&OCellIsLower != 0:
-			if c < v {
+			if val < cptTo {
 				return true, nil
 			}
 		case condition&OCellIsGreaterOrEqual != 0:
-			if c >= v {
+			if val >= cptTo {
 				return true, nil
 			}
 		case condition&OCellIsLowerOrEqual != 0:
-			if c <= v {
+			if val <= cptTo {
 				return true, nil
 			}
 		case condition&OCellIsNotEqual != 0:
-			if c != v {
+			if val != cptTo {
 				return true, nil
 			}
 		}
 	case string:
 		switch {
 		case condition&OCellIsEqual != 0:
-			if strings.ToLower(value) == strings.ToLower(v) {
+			if strings.ToLower(value) == strings.ToLower(cptTo) {
 				return true, nil
 			}
 		case condition&OCellIsGreater != 0:
-			if strings.ToLower(value) > strings.ToLower(v) {
+			if strings.ToLower(value) > strings.ToLower(cptTo) {
 				return true, nil
 			}
 		case condition&OCellIsLower != 0:
-			if strings.ToLower(value) < strings.ToLower(v) {
+			if strings.ToLower(value) < strings.ToLower(cptTo) {
 				return true, nil
 			}
 		case condition&OCellIsGreaterOrEqual != 0:
-			if strings.ToLower(value) >= strings.ToLower(v) {
+			if strings.ToLower(value) >= strings.ToLower(cptTo) {
 				return true, nil
 			}
 		case condition&OCellIsLowerOrEqual != 0:
-			if strings.ToLower(value) <= strings.ToLower(v) {
+			if strings.ToLower(value) <= strings.ToLower(cptTo) {
 				return true, nil
 			}
 		case condition&OCellIsNotEqual != 0:
-			if strings.ToLower(value) != strings.ToLower(v) {
+			if strings.ToLower(value) != strings.ToLower(cptTo) {
 				return true, nil
 			}
 		}
@@ -122,7 +122,7 @@ func checkCondition(value string, condition int, compareTo interface{}) (bool, e
 }
 
 
-func (hp *htmlLookup) AddOption(column interface{}, condition int, compareTo interface{}, wholeRow bool, option string) (err error) {
+func (hp *htmlLookup) AddOption(column interface{}, applyOptionTo interface{}, condition int, compareTo interface{}, wholeRow bool, option string) (err error) {
 	cOption := coloringOption{condition: condition, wholeRow: wholeRow, option: option}
 	switch col := column.(type) {
 	case int:
@@ -137,6 +137,20 @@ func (hp *htmlLookup) AddOption(column interface{}, condition int, compareTo int
 		}
 	default:
 		return fmt.Errorf("column is of the wrong type\n")
+	}
+	switch col := applyOptionTo.(type) {
+	case int:
+		if col >= len(hp.header) || col < 0 {
+			return fmt.Errorf("applyOptionTo index out of bounds\n")
+		}
+		cOption.applyOptionTo = col
+	case string:
+		cOption.applyOptionTo, err = hp.columnIndex(col)
+		if err != nil {
+			return fmt.Errorf("applyOptionTo does not exist\n")
+		}
+	default:
+		return fmt.Errorf("applyOptionTo is of the wrong type\n")
 	}
 	switch cp := compareTo.(type) {
 	case int:
@@ -166,11 +180,11 @@ func checkRelCondition(value string, compareTo string, condition int, numericCom
 	switch numericComparison {
 	case true:
 		var notNumeric bool
-		c, err := strconv.ParseFloat(value, 64)
+		val, err := strconv.ParseFloat(value, 64)
 		if err != nil {
 			notNumeric = true
 		}
-		v, err := strconv.ParseFloat(compareTo, 64)
+		cptTo, err := strconv.ParseFloat(compareTo, 64)
 		if err != nil {
 			notNumeric = true
 		}
@@ -178,29 +192,35 @@ func checkRelCondition(value string, compareTo string, condition int, numericCom
 		case notNumeric:
 			break
 		case condition&OCellIsEqual != 0:
-			if c == v {
+			if val == cptTo {
 				return true, nil
 			}
+			return false, nil // because of the fallthrough you have to exit
 		case condition&OCellIsGreater != 0:
-			if c > v {
+			if val > cptTo {
 				return true, nil
 			}
+			return false, nil // because of the fallthrough you have to exit
 		case condition&OCellIsLower != 0:
-			if c < v {
+			if val < cptTo {
 				return true, nil
 			}
+			return false, nil // because of the fallthrough you have to exit
 		case condition&OCellIsGreaterOrEqual != 0:
-			if c >= v {
+			if val >= cptTo {
 				return true, nil
 			}
+			return false, nil // because of the fallthrough you have to exit
 		case condition&OCellIsLowerOrEqual != 0:
-			if c <= v {
+			if val <= cptTo {
 				return true, nil
 			}
+			return false, nil // because of the fallthrough you have to exit
 		case condition&OCellIsNotEqual != 0:
-			if c != v {
+			if val != cptTo {
 				return true, nil
 			}
+			return false, nil // because of the fallthrough you have to exit
 		}
 		fallthrough
 	default:
@@ -234,7 +254,7 @@ func checkRelCondition(value string, compareTo string, condition int, numericCom
 	return false, nil
 }
 
-func (hp *htmlLookup) AddRelOption(column interface{}, condition int, compareToColumn interface{}, numericComparison bool, wholeRow bool, option string) (err error) {
+func (hp *htmlLookup) AddRelOption(column interface{}, applyOptionTo interface{}, condition int, compareToColumn interface{}, numericComparison bool, wholeRow bool, option string) (err error) {
 	cOption := coloringOption{
 		condition: condition,
 		wholeRow: wholeRow,
@@ -255,6 +275,20 @@ func (hp *htmlLookup) AddRelOption(column interface{}, condition int, compareToC
 		}
 	default:
 		return fmt.Errorf("column is of the wrong type\n")
+	}
+	switch col := applyOptionTo.(type) {
+	case int:
+		if col >= len(hp.header) || col < 0 {
+			return fmt.Errorf("applyOptionTo index out of bounds\n")
+		}
+		cOption.applyOptionTo = col
+	case string:
+		cOption.applyOptionTo, err = hp.columnIndex(col)
+		if err != nil {
+			return fmt.Errorf("applyOptionTo does not exist\n")
+		}
+	default:
+		return fmt.Errorf("applyOptionTo is of the wrong type\n")
 	}
 	switch col := compareToColumn.(type) {
 	case int:
