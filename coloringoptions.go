@@ -17,6 +17,22 @@ const (
 	OCellIsNotEqual       = 1 << iota
 )
 
+func (hp *htmlLookup) AddOptionToRow(column interface{}, condition int, compareTo interface{}, option string) error {
+	return hp.addOption(column, column, condition, compareTo, true, option)
+}
+
+func (hp *htmlLookup) AddOptionToCell(column interface{}, applyOptionTo interface{}, condition int, compareTo interface{}, option string) error {
+	return hp.addOption(column, applyOptionTo, condition, compareTo, false, option)
+}
+
+func (hp *htmlLookup) AddRelOptionToRow(column interface{}, condition int, compareToColumn interface{}, numericComparison bool, option string) error {
+	return hp.addRelOption(column, column, condition, compareToColumn, numericComparison, true, option)
+}
+
+func (hp *htmlLookup) AddRelOptionToCell(column interface{}, applyOptionTo interface{}, condition int, compareToColumn interface{}, numericComparison bool, option string) error {
+	return hp.addRelOption(column, applyOptionTo, condition, compareToColumn, numericComparison, false, option)
+}
+
 // checkCondition checks the content of the cell against a value
 // the comparison can be numeric or string
 // use int64 and float64 only
@@ -121,8 +137,7 @@ func checkCondition(value string, condition int, compareTo interface{}) (bool, e
 	return false, nil
 }
 
-
-func (hp *htmlLookup) AddOption(column interface{}, applyOptionTo interface{}, condition int, compareTo interface{}, wholeRow bool, option string) (err error) {
+func (hp *htmlLookup) addOption(column interface{}, applyOptionTo interface{}, condition int, compareTo interface{}, wholeRow bool, option string) (err error) {
 	cOption := coloringOption{condition: condition, wholeRow: wholeRow, option: option}
 	switch col := column.(type) {
 	case int:
@@ -254,12 +269,12 @@ func checkRelCondition(value string, compareTo string, condition int, numericCom
 	return false, nil
 }
 
-func (hp *htmlLookup) AddRelOption(column interface{}, applyOptionTo interface{}, condition int, compareToColumn interface{}, numericComparison bool, wholeRow bool, option string) (err error) {
+func (hp *htmlLookup) addRelOption(column interface{}, applyOptionTo interface{}, condition int, compareToColumn interface{}, numericComparison bool, wholeRow bool, option string) (err error) {
 	cOption := coloringOption{
-		condition: condition,
-		wholeRow: wholeRow,
-		option: option,
-		numericComparison: numericComparison,
+		condition:          condition,
+		wholeRow:           wholeRow,
+		option:             option,
+		numericComparison:  numericComparison,
 		relativeComparison: true,
 	}
 	switch col := column.(type) {

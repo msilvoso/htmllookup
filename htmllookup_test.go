@@ -86,27 +86,27 @@ func Test_searchableHtmlPage_Save(t *testing.T) {
 	h.Hover()
 	h.Bordered()
 	h.Striped()
-	err = h.AddOption("year", "year", OCellIsGreaterOrEqual, 1980, true, "success")
+	err = h.AddOptionToRow("year", OCellIsGreaterOrEqual, 1980, "success")
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = h.AddOption("age", "age", OCellIsLowerOrEqual, 23, false, "danger")
+	err = h.AddOptionToCell("age", "age", OCellIsLowerOrEqual, 23, "danger")
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = h.AddOption("age", "age", OCellIsGreaterOrEqual, 30, false, "info")
+	err = h.AddOptionToCell("age", "age", OCellIsGreaterOrEqual, 30, "info")
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = h.AddOption("index", "index", OCellIsLower, 10, true, "warning")
+	err = h.AddOptionToRow("index", OCellIsLower, 10, "warning")
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = h.AddOption("name", "name", OCellIsGreater, "lll", false, "primary")
+	err = h.AddOptionToCell("name", "name", OCellIsGreater, "lll", "primary")
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = h.AddOption("year", "year", OCellIsNotEqual, 2000, false, "secondary")
+	err = h.AddOptionToCell("year", "year", OCellIsNotEqual, 2000, "secondary")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -211,15 +211,15 @@ func Test_searchableHtmlPage_AddRelOption(t *testing.T) {
 	h.Hover()
 	h.Bordered()
 	h.Striped()
-	err = h.AddRelOption("age", "age", OCellIsGreater, "index", true, false, "danger")
+	err = h.AddRelOptionToCell("age", "age", OCellIsGreater, "index", true, "danger")
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = h.AddRelOption("name", "name", OCellIsGreaterOrEqual, "name_of_the_movie", true, false, "warning")
+	err = h.AddRelOptionToCell("name", "name", OCellIsGreaterOrEqual, "name_of_the_movie", true, "warning")
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = h.AddRelOption("index", "index", OCellIsGreater, "age", true, true, "info")
+	err = h.AddRelOptionToRow("index", OCellIsGreater, "age", true, "info")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -255,15 +255,15 @@ func Test_searchableHtmlPage_ApplyToColumn(t *testing.T) {
 	h.Hover()
 	h.Bordered()
 	h.Striped()
-	err = h.AddRelOption("age", "name_of_the_movie", OCellIsGreater, "index", true, false, "danger")
+	err = h.AddRelOptionToCell("age", "name_of_the_movie", OCellIsGreater, "index", true, "danger")
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = h.AddRelOption("name", "name", OCellIsGreaterOrEqual, "name_of_the_movie", true, false, "warning")
+	err = h.AddRelOptionToCell("name", "name", OCellIsGreaterOrEqual, "name_of_the_movie", true, "warning")
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = h.AddRelOption("index", "year", OCellIsGreater, "age", true, false, "info")
+	err = h.AddRelOptionToCell("index", "year", OCellIsGreater, "age", true, "info")
 	if err != nil {
 		t.Fatal(err)
 	}

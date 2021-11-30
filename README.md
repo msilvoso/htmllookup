@@ -1,6 +1,8 @@
 # htmllookup
 Fast html/javascript lookup generated from a csv file
 
+The API is still unstable!
+
 ![Example](htmllookup.gif)
 
 Example (without error checks):
