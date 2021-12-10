@@ -20,7 +20,7 @@ type columnStruct struct {
 func (hp *htmlLookup) headerJson() error {
 	// iterate through first csv line -> header (column names)
 	var h []columnStruct
-	columnLoop:
+columnLoop:
 	for k, column := range hp.header {
 		// check if the column should be hidden
 		for _, hiddenColumn := range hp.hiddenColumns {
@@ -61,7 +61,7 @@ func normalizeHeader(input string) (string, error) {
 		}
 		return r
 	})
-	t := transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC, cases.Lower(language.Und), replaceWhiteSpacesByUnderScores)
+	t := transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC, cases.Lower(language.Und), runes.Remove(runes.In(unicode.Upper)), runes.Remove(new(nonWordCharsSet)), replaceWhiteSpacesByUnderScores)
 	normalized, _, err := transform.String(t, input)
 	if err != nil {
 		return input, err

@@ -27,27 +27,26 @@ func (hp *htmlLookup) itemsJson() error {
 		searchColumns := make([]string, 0, 5)
 		for headerKey, columnName := range hp.header {
 			// value
-			line[columnName] = l[headerKey]
+			switch valueExistsInSlice(&hp.notHtmlEscapedColumns, headerKey) {
+			case true:
+				line[columnName] = l[headerKey]
+			case false:
+				// replace by alternative unicode chars that look the same
+				// vue.js seems to do the rest correctly
+				replaceHtmlSpecialChars := strings.NewReplacer(
+					`<`, "\ufe64",
+					`>`, "\ufe65",
+				)
+				line[columnName] = replaceHtmlSpecialChars.Replace(l[headerKey])
+			}
 			// colorOptions
 			rowVariant := hp.colorRow(headerKey, l)
 			if rowVariant != "" {
 				line["_rowVariant"] = rowVariant
 			}
-			// add to search
-			switch len(hp.searchableColumns) {
-			case 0: // if no searchableColumns have been specified all columns should be searchable
+			// add to search, default is everything is searchable
+			if len(hp.searchableColumns) == 0 || valueExistsInSlice(&hp.searchableColumns, headerKey) {
 				searchColumns = append(searchColumns, l[headerKey])
-			default:
-				var searchable bool
-				for _, searchableColumn := range hp.searchableColumns {
-					if searchableColumn == headerKey {
-						searchable = true
-						break
-					}
-				}
-				if searchable {
-					searchColumns = append(searchColumns, l[headerKey])
-				}
 			}
 		}
 		searchColumn := strings.Join(searchColumns, " ")
@@ -158,10 +157,21 @@ func (hp *htmlLookup) SearchableColumns(columns ...interface{}) error {
 
 // normalize removes spaces, transliterates special characters, converts to lowercase
 func normalize(input string) (string, error) {
-	t := transform.Chain(cases.Lower(language.Und), runes.If(runes.In(unicode.White_Space), runes.Map(func(r rune) rune { return ' ' }), nil), norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
+	t := transform.Chain(cases.Lower(language.Und), runes.If(runes.In(unicode.White_Space), runes.Map(func(r rune) rune { return ' ' }), nil), norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC, runes.Remove(new(removeHtmlSpecialChars)))
 	normalized, _, err := transform.String(t, input)
 	if err != nil {
 		return input, err
 	}
 	return normalized, nil
+}
+
+func valueExistsInSlice(slice *[]int, value int) bool {
+	var found bool
+	for _, v := range *slice {
+		if v == value {
+			found = true
+			break
+		}
+	}
+	return found
 }

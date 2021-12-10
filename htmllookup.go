@@ -27,24 +27,25 @@ type coloringOption struct {
 }
 
 type htmlLookup struct {
-	Title             string
-	TemplateLanguage  string
-	BTableAttributes  string
-	bTableAttributes  []string
-	BTableTemplates   string
-	bTableTemplates   []string
-	ItemLimit         string
-	ItemsPerPage      string
-	FieldsJson        string
-	ItemsJson         string
-	SortBy            string
-	content           [][]string
-	header            []string
-	html              string
-	coloringOptions   []coloringOption
-	hiddenColumns     []int
-	searchableColumns []int
-	DateNow           string
+	Title                 string
+	TemplateLanguage      string
+	BTableAttributes      string
+	bTableAttributes      []string
+	BTableTemplates       string
+	bTableTemplates       []string
+	ItemLimit             string
+	ItemsPerPage          string
+	FieldsJson            string
+	ItemsJson             string
+	SortBy                string
+	content               [][]string
+	header                []string
+	html                  string
+	coloringOptions       []coloringOption
+	hiddenColumns         []int
+	searchableColumns     []int
+	notHtmlEscapedColumns []int
+	DateNow               string
 }
 
 // New is the simple factory for the htmlLookup struct

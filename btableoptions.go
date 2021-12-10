@@ -24,22 +24,33 @@ func (hp *htmlLookup) AddBTableAttribute(attribute string) {
 
 // RenderInRawHtml adds template to bTable to render the column values in raw html
 // column can either be an int, string or a []byte
-func (hp *htmlLookup) RenderInRawHtml(column interface{}) (err error){
+func (hp *htmlLookup) RenderInRawHtml(column interface{}) (err error) {
 	var cName string
+	var cIndex int
 	switch t := column.(type) {
 	case int:
 		cName, err = hp.columnName(t)
 		if err != nil {
 			return err
 		}
+		cIndex = t
 	case string:
 		cName = t
+		cIndex, err = hp.columnIndex(cName)
+		if err != nil {
+			return err
+		}
 	case []byte:
 		cName = string(t)
+		cIndex, err = hp.columnIndex(cName)
+		if err != nil {
+			return err
+		}
 	default:
 		return fmt.Errorf("column argument has to be either int, string or []byte")
 	}
 	hp.AddBTableTemplate(fmt.Sprintf("<template #cell(%s)=\"data\"><span v-html=\"data.value\"></span></template>", cName))
+	hp.notHtmlEscapedColumns = append(hp.notHtmlEscapedColumns, cIndex)
 	return
 }
 
@@ -51,7 +62,7 @@ func (hp *htmlLookup) AddBTableTemplate(template string) {
 
 // columnName returns the column name
 func (hp *htmlLookup) columnName(col int) (string, error) {
-	if col > len(hp.header) - 1 {
+	if col > len(hp.header)-1 {
 		return "", fmt.Errorf("the column with index %d does not exist", col)
 	}
 	return hp.header[col], nil

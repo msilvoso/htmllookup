@@ -1,6 +1,8 @@
 package htmllookup
 
-import "testing"
+import (
+	"testing"
+)
 
 func Test_searchableHtmlPage_itemsJson(t *testing.T) {
 	h := New()

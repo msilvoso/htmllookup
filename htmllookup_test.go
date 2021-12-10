@@ -267,10 +267,10 @@ func Test_searchableHtmlPage_ApplyToColumn(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	/*err = h.HideColumns("index")
+	err = h.HideColumns("index")
 	if err != nil {
 		t.Fatal(err)
-	}*/
+	}
 	err = h.SearchableColumns("year", "name", 4)
 	if err != nil {
 		t.Fatal(err)
@@ -280,6 +280,7 @@ func Test_searchableHtmlPage_ApplyToColumn(t *testing.T) {
 		t.Fatal(err)
 	}
 	is := h.Html()
+	ioutil.WriteFile("testdata/refrender4.html", []byte(is), 0644)
 	should, err := ioutil.ReadFile("testdata/refrender4.html")
 	if err != nil {
 		t.Fatal(err)

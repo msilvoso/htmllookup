@@ -1,6 +1,8 @@
 package htmllookup
 
-import "testing"
+import (
+	"testing"
+)
 
 func Test_searchableHtmlPage_headerJson(t *testing.T) {
 	h := New()
@@ -22,5 +24,13 @@ func Test_searchableHtmlPage_headerJson(t *testing.T) {
 		if c != headerShould[k] {
 			t.Errorf("header is not correct: \nis:\n%s\nshould be:\n%s", c, headerShould[k])
 		}
+	}
+}
+
+func Test_normalizeHeader(t *testing.T) {
+	test := "<script>alert('tést') </script>"
+	header, _ := normalizeHeader(test)
+	if header != "scriptalerttest_script" {
+		t.Errorf("Normalisation not working as intended: Should be: \"scriptalerttest_script\" is %s\n", header)
 	}
 }
